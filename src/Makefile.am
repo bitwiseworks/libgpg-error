@@ -39,7 +39,7 @@ bin_PROGRAMS = gpg-error
 if HAVE_W32_SYSTEM
 noinst_PROGRAMS = gen-w32-lock-obj
 else
-noinst_PROGRAMS = gen-posix-lock-obj
+noinst_PROGRAMS = gen-posix-lock-obj$(EXEEXT)
 endif
 
 # Distributed lock object definitions for cross compilation.
@@ -262,7 +262,7 @@ gpg-error.def: Makefile gpg-error.def.in
 
 # It is correct to use $(CC_FOR_BUILD) here.  We want to run the
 # program at build time.
-mkerrcodes: mkerrcodes.c mkerrcodes.h Makefile
+mkerrcodes$(EXEEXT): mkerrcodes.c mkerrcodes.h Makefile
 	$(CC_FOR_BUILD) -I. -I$(srcdir) -o $@ $(srcdir)/mkerrcodes.c
 
 if HAVE_W32CE_SYSTEM
@@ -272,7 +272,7 @@ mkw32errmap: mkw32errmap.c mkw32errmap.tab.h Makefile
 	$(CC_FOR_BUILD) -I. -I$(srcdir) -o $@ $(srcdir)/mkw32errmap.c
 endif
 
-code-from-errno.h: mkerrcodes Makefile
+code-from-errno.h: mkerrcodes$(EXEEXT) Makefile
 	./mkerrcodes | $(AWK) -f $(srcdir)/mkerrcodes2.awk >$@
 
 errnos-sym.h: Makefile mkstrtable.awk errnos.in
@@ -281,7 +281,7 @@ errnos-sym.h: Makefile mkstrtable.awk errnos.in
 		$(srcdir)/errnos.in >$@
 
 
-mkheader: mkheader.c Makefile
+mkheader$(EXEEXT): mkheader.c Makefile
 	$(CC_FOR_BUILD) -g -O0 -I. -I$(srcdir) -o $@ $(srcdir)/mkheader.c
 
 parts_of_gpg_error_h = 	 	\
@@ -308,7 +308,7 @@ endif
 
 # We also depend on versioninfo.rc because that is build by
 # config.status and thus has up-to-date version numbers.
-gpg-error.h: Makefile mkheader $(parts_of_gpg_error_h) \
+gpg-error.h: Makefile mkheader$(EXEEXT) $(parts_of_gpg_error_h) \
              versioninfo.rc ../config.h
 	$(pre_mkheader_cmds)
 	./mkheader $(host_os) $(host_triplet)  $(srcdir)/gpg-error.h.in \
