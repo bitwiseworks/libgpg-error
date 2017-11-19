@@ -31,7 +31,11 @@
 #include <errno.h>
 #include <unistd.h>  /* Get posix option macros.  */
 
-#if USE_POSIX_THREADS
+#ifdef __OS2__
+#define INCL_DOS
+#include <os2.h>
+#define  sched_yield() DosSleep(0)
+#elif USE_POSIX_THREADS
 # ifdef _POSIX_PRIORITY_SCHEDULING
 #  include <sched.h>
 # endif
