@@ -132,6 +132,10 @@ AC_DEFUN([gl_THREADLIB_BODY],
 #pragma weak xyzzy]],
             [[xyzzy();]])],
          [gl_cv_have_weak=maybe])
+       case "$host_os" in
+          os2*)
+            gl_cv_have_weak=no
+       esac
        if test $gl_cv_have_weak = maybe; then
          dnl Second, test whether it actually works. On Cygwin 1.7.2, with
          dnl gcc 4.3, symbols declared weak always evaluate to the address 0.
