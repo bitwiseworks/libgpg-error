@@ -111,6 +111,9 @@
 # ifdef HAVE_W32_SYSTEM
 #  define HAVE_DOSISH_SYSTEM 1
 # endif
+# ifdef HAVE_OS2_SYSTEM
+#  define HAVE_DOSISH_SYSTEM 1
+# endif
 #endif
 
 

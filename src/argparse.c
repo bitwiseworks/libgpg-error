@@ -38,7 +38,7 @@
 
 #include "gpgrt-int.h"
 
-#ifdef HAVE_W32_SYSTEM
+#if defined(HAVE_W32_SYSTEM) || defined(HAVE_OS2_SYSTEM)
 # define PATHSEP_C ';'
 # define DIRSEP_C  '\\'
 #else
@@ -1399,7 +1399,7 @@ is_absfname (const char *fname)
 {
   const char *s;
 
-#ifdef HAVE_W32_SYSTEM
+#if defined(HAVE_W32_SYSTEM) || defined(HAVE_OS2_SYSTEM)
   s = strchr (fname, ':');
   if (s)
     s++;
@@ -1410,7 +1410,7 @@ is_absfname (const char *fname)
 #endif
 
   return (*s == '/'
-#ifdef HAVE_W32_SYSTEM
+#if defined(HAVE_W32_SYSTEM) || defined(HAVE_OS2_SYSTEM)
           || *s == DIRSEP_C
 #endif
           );
@@ -2795,7 +2795,7 @@ _gpgrt_set_confdir (int what, const char *name)
 
   if (!buf)
     _gpgrt_log_fatal ("out of core in %s\n", __func__);
-#ifdef HAVE_W32_SYSTEM
+#if defined(HAVE_W32_SYSTEM) || defined(HAVE_OS2_SYSTEM)
   for (p=buf; *p; p++)
     if (*p == '\\')
       *p = '/';
