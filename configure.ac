@@ -63,7 +63,7 @@ AC_SUBST(VERSION_NUMBER)
 
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([serial-tests dist-bzip2])
-AM_MAINTAINER_MODE
+#AM_MAINTAINER_MODE
 AC_CONFIG_SRCDIR([src/err-sources.h.in])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -121,6 +121,7 @@ AC_SUBST([LDADD_FOR_TESTS_KLUDGE])
 have_w32_system=no
 have_w64_system=no
 have_w32ce_system=no
+have_os2_system=no
 case "${host}" in
     x86_64-*mingw32*)
         have_w32_system=yes
@@ -132,6 +133,9 @@ case "${host}" in
         ;;
     *-mingw32*)
         have_w32_system=yes
+        ;;
+    *-os2*)
+        have_os2_system=yes
         ;;
     *-apple-darwin*)
         # This is the equivalent of the _GNU_SOURCE feature-test-macro
@@ -626,6 +630,10 @@ AM_CONDITIONAL(HAVE_GENERATED_LOCK_OBJ_H, test x$lock_obj_h_generated = xyes)
 
 AC_DEFINE_UNQUOTED(HOST_TRIPLET_STRING, "$host", [The host triplet])
 
+if test "$have_os2_system" = yes; then
+    AC_DEFINE(HAVE_OS2_SYSTEM,1,[Defined if we run on OS/2 based systems])
+fi
+AM_CONDITIONAL(HAVE_OS2_SYSTEM, test "$have_os2_system" = yes)
 
 #
 # gpgrt_log_clock may require linking with extra libaries.  As long as
