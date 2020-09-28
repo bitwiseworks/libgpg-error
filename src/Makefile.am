@@ -121,7 +121,11 @@ CLEANFILES = code-to-errno.h code-from-errno.h \
 
 MAINTAINERCLEANFILES = $(srcdir)/err-sources.h $(srcdir)/err-codes.h
 
+if HAVE_OS2_SYSTEM
+TESTS = 
+else
 TESTS = gpg-error-config-test.sh
+endif
 
 #
 # {{{ Begin Windows part
