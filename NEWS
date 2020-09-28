@@ -1,11 +1,324 @@
-Noteworthy changes in version 1.28 (unreleased) [C22/A22/R_]
+Noteworthy changes in version 1.39 (2020-08-24) [C30/A30/R0]
 -----------------------------------------------
 
- * The formerly internal yat2m tool is now installed during a native
+ * On Windows gpgrt_fopen, gpgrt_chdir, and gpgrt_mkdir now handle
+   UTF-8 names.  [#4083]
+
+ * Make timeout of gpgrt_poll work correctly on Windows if no file
+   descriptors are active.
+
+ * New function gpgrt_fcancel as alternative to gpgrt_close.  This
+   function avoid flushing out buffered data and also tries to delete
+   a newly created file.
+
+ * Changes to ease cross-building.  [#4973]
+
+ * "gpg-error --lib-version" works again.
+
+ * Interface changes relative to the 1.38 release:
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ gpgrt_fcancel                    NEW.
+
+ Release-info: https://dev.gnupg.org/T5031
+
+
+Noteworthy changes in version 1.38 (2020-05-29) [C29/A29/R0]
+-----------------------------------------------
+
+ * New option parser with features to implement system wide
+   configuration files.
+
+ * New functions to build file names.
+
+ * New function to help reallocating arrays.
+
+ * Protect gpgrt_inc_errorcount against counter overflow.
+
+ * Improve cross-building for new platforms.  [#4774]
+
+ * Support 64-bit big-endian MIPS architecture.  [#4952]
+
+ * Support static link for Windows with -lws2_32.  [#4623]
+
+ * Interface changes relative to the 1.37 release:
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ gpgrt_fnameconcat                NEW.
+ gpgrt_absfnameconcat             NEW.
+ gpgrt_reallocarray               NEW.
+ gpgrt_set_confdir                NEW.
+ gpgrt_argparser                  NEW.
+ ARGPARSE_FLAG_SYS                NEW.
+ ARGPARSE_FLAG_USER               NEW.
+ ARGPARSE_FLAG_VERBOSE            NEW.
+ ARGPARSE_FLAG_USERVERS           NEW.
+ ARGPARSE_FLAG_WITHATTR           NEW.
+ ARGPARSE_NO_CONFFILE             NEW.
+ ARGPARSE_CONFFILE                NEW.
+ ARGPARSE_OPT_CONFFILE            NEW.
+ ARGPARSE_ATTR_FORCE              NEW.
+ ARGPARSE_ATTR_IGNORE             NEW.
+ ARGPARSE_TYPE_MASK               NEW.
+ ARGPARSE_PERMISSION_ERROR        NEW.
+ ARGPARSE_INVALID_META            NEW.
+ ARGPARSE_UNKNOWN_META            NEW.
+ ARGPARSE_UNEXPECTED_META         NEW.
+ ARGPARSE_conffile                NEW.
+ ARGPARSE_noconffile              NEW.
+ ARGPARSE_verbatim                NEW.
+ ARGPARSE_header                  NEW.
+ GPGRT_CONFDIR_USER               NEW.
+ GPGRT_CONFDIR_SYS                NEW.
+
+ Release-info: https://dev.gnupg.org/T4859
+
+
+Noteworthy changes in version 1.37 (2020-02-07) [C28/A28/R0]
+-----------------------------------------------
+
+ * Fixes a build problems when using Gawk 5.0  [#4459]
+
+ * Fixes Bourne shell incompatibilities on Solaris.  [#4574]
+
+ * Improves cross-comiling support.  [#4643]
+
+ * On Windows strerror_s is now used to emulate strerror_r.  [#4539]
+
+ * New error codes to map SQLite primary error codes.
+
+ * Now uses poll(2) instead of select(2) in gpgrt_poll if possible.
+
+ * Fixes a bug in gpgrt_close.  [#4698]
+
+ * Fixes build problem under Cygwin.  [#4474]
+
+ * Fixes a few minor portability bugs.
+
+ * Interface changes relative to the 1.36 release:
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ GPG_ERR_NO_KEYBOXD               NEW.
+ GPG_ERR_KEYBOXD                  NEW.
+ GPG_ERR_NO_SERVICE               NEW.
+ GPG_ERR_SERVICE.                 NEW.
+ GPG_ERR_SQL_OK		          NEW.
+ GPG_ERR_SQL_ERROR	          NEW.
+ GPG_ERR_SQL_INTERNAL	          NEW.
+ GPG_ERR_SQL_PERM	          NEW.
+ GPG_ERR_SQL_ABORT	          NEW.
+ GPG_ERR_SQL_BUSY	          NEW.
+ GPG_ERR_SQL_LOCKED	          NEW.
+ GPG_ERR_SQL_NOMEM	          NEW.
+ GPG_ERR_SQL_READONLY	          NEW.
+ GPG_ERR_SQL_INTERRUPT	          NEW.
+ GPG_ERR_SQL_IOERR	          NEW.
+ GPG_ERR_SQL_CORRUPT	          NEW.
+ GPG_ERR_SQL_NOTFOUND	          NEW.
+ GPG_ERR_SQL_FULL	          NEW.
+ GPG_ERR_SQL_CANTOPEN	          NEW.
+ GPG_ERR_SQL_PROTOCOL	          NEW.
+ GPG_ERR_SQL_EMPTY	          NEW.
+ GPG_ERR_SQL_SCHEMA	          NEW.
+ GPG_ERR_SQL_TOOBIG	          NEW.
+ GPG_ERR_SQL_CONSTRAINT	          NEW.
+ GPG_ERR_SQL_MISMATCH	          NEW.
+ GPG_ERR_SQL_MISUSE	          NEW.
+ GPG_ERR_SQL_NOLFS	          NEW.
+ GPG_ERR_SQL_AUTH	          NEW.
+ GPG_ERR_SQL_FORMAT	          NEW.
+ GPG_ERR_SQL_RANGE	          NEW.
+ GPG_ERR_SQL_NOTADB	          NEW.
+ GPG_ERR_SQL_NOTICE	          NEW.
+ GPG_ERR_SQL_WARNING	          NEW.
+ GPG_ERR_SQL_ROW	          NEW.
+ GPG_ERR_SQL_DONE	          NEW.
+
+ Release-info: https://dev.gnupg.org/T4772
+
+
+Noteworthy changes in version 1.36 (2019-03-19) [C27/A27/R0]
+-----------------------------------------------
+
+ * Two new error codes to better support PIV cards.
+
+ * Support armv7a-unknown-linux-gnueabihf.
+
+ * Increased estream buffer sizes for Windows.
+
+ * Interface changes relative to the 1.34 release:
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ GPG_ERR_NO_AUTH                  NEW.
+ GPG_ERR_BAD_AUTH                 NEW.
+
+ Release-info: https://dev.gnupg.org/T4413
+
+
+Noteworthy changes in version 1.35 (2019-01-28) [C26/A26/R1]
+-----------------------------------------------
+
+ * Distribute the correct gpgrt-config.
+
+
+Noteworthy changes in version 1.34 (2019-01-16) [C26/A26/R0]
+-----------------------------------------------
+
+ * Support for riscv32.
+
+ * New API to allow emergency cleanup after internal fatal errors.
+
+ * Minor bug and portability fixes. [#4286,#4298
+
+ * Interface changes relative to the 1.33 release:
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ gpgrt_abort                     NEW.
+ gpgrt_add_emergency_cleanup     NEW.
+
+ Release-info: https://dev.gnupg.org/T4296
+
+
+Noteworthy changes in version 1.33 (2018-12-07) [C25/A25/R0]
+-----------------------------------------------
+
+ * New unified config script gpgrt-config which can now be used by all
+   GnuPG related packages.
+
+ * Support for ARC and arm64ilp32.
+
+ * The log functions now sanitize strings printed with the "%s" format
+   specifier.  All control characters are C-escaped in the output.
+   Users of that function may want to remove their own escaping to
+   avoid doubling of backslashes.
+
+ * New fprintf style function to apply a custom filter for string
+   arguments.
+
+ * New function to compare version strings.
+
+ * Interface changes relative to the 1.28 release:
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ gpgrt_cmp_version               New.
+ gpgrt_string_filter_t           New.
+ gpgrt_fprintf_sf                New.
+ gpgrt_fprintf_sf_unlocked       New.
+ gpgrt_ftruncate                 New but limited functionality.
+ gpgrt_w32_override_locale       New.
+
+ Release-info: https://dev.gnupg.org/T4205
+
+
+Noteworthy changes in version 1.32 (2018-07-12) [C24/A24/R3]
+-----------------------------------------------
+
+ * Fixes a problem with gpgrt_fflush and gpgrt_fopencookie.  [#4069]
+
+ * Fixes a problem with the C11 header stdnoreturn.h.  [#4002]
+
+ * The yat2m tool can now also be build on Windows.
+
+ * Updates translations for Spanish, Russian and Ukrainian.
+
+
+Noteworthy changes in version 1.31 (2018-05-02) [C24/A24/R2]
+-----------------------------------------------
+
+ * Fixes another problem with gpgrt_poll under Windows.  [#3937]
+
+ * New translation for Spanish.
+
+
+Noteworthy changes in version 1.30 (2018-04-30) [C24/A24/R1]
+-----------------------------------------------
+
+ * Fixes a hang on Windows when using gpgrt_poll under nPth.
+
+ * Build fix for Solaris.  [#3869]
+
+
+Noteworthy changes in version 1.29 (2018-04-11) [C24/A24/R0]
+-----------------------------------------------
+
+ * The yat2m tool is during cross-compile now also installed on the
+   host platform.
+
+ * New option parser and associated functions similar to the one used
+   by GnuPG.
+
+ * New Base-64 encoder.
+
+ * Fixes regression in 1.28 for arm64 and w64 builds.
+
+ * Interface changes relative to the 1.28 release:
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ gpgrt_argparse                  New.
+ gpgrt_usage                     New.
+ gpgrt_strusage                  New.
+ gpgrt_set_strusage              New.
+ gpgrt_set_usage_outfnc          New.
+ gpgrt_set_fixed_string_mapper   New.
+ GPGRT_ENABLE_ARGPARSE_MACROS    New macro.
+ gpgrt_b64enc_start              New.
+ gpgrt_b64enc_write              New.
+ gpgrt_b64enc_finish             New.
+
+
+Noteworthy changes in version 1.28 (2018-03-13) [C23/A23/R0]
+-----------------------------------------------
+
+ * The formerly internal yat2m tool is now installed for a native
    build.
+
+ * The new files gpgrt.m4 and gpgrt-config are now installed.  They
+   can be used instead of gpg-error.m4 and gpg-error-config.
+
+ * New logging functions similar to those used by GnuPG.
+
+ * New helper functions for platform abstraction.
 
  * Interface changes relative to the 1.27 release:
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ gpgrt_get_errorcount            New API.
+ gpgrt_inc_errorcount            New API.
+ gpgrt_log_set_sink              New API.
+ gpgrt_log_set_socket_dir_cb     New API.
+ gpgrt_log_set_pid_suffix_cb     New API.
+ gpgrt_log_set_prefix            New API.
+ gpgrt_log_get_prefix            New API.
+ gpgrt_log_test_fd               New API.
+ gpgrt_log_get_fd                New API.
+ gpgrt_log_get_stream            New API.
+ gpgrt_log                       New API.
+ gpgrt_logv                      New API.
+ gpgrt_logv_prefix               New API.
+ gpgrt_log_string                New API.
+ gpgrt_log_info                  New API.
+ gpgrt_log_error                 New API.
+ gpgrt_log_fatal                 New API.
+ gpgrt_log_bug                   New API.
+ gpgrt_log_debug                 New API.
+ gpgrt_log_debug_string          New API.
+ gpgrt_log_printf                New API.
+ gpgrt_log_flush                 New API.
+ gpgrt_log_printhex              New API.
+ gpgrt_log_clock                 New API.
+ gpgrt_assert                    New macro.
+ _gpgrt_log_assert               New internal API.
+ GPGRT_LOGLVL_BEGIN              New const.
+ GPGRT_LOGLVL_CONT               New const.
+ GPGRT_LOGLVL_INFO               New const.
+ GPGRT_LOGLVL_WARN               New const.
+ GPGRT_LOGLVL_ERROR              New const.
+ GPGRT_LOGLVL_FATAL              New const.
+ GPGRT_LOGLVL_BUG                New const.
+ GPGRT_LOGLVL_DEBUG              New const.
+ gpgrt_realloc                   New API.
+ gpgrt_malloc                    New API.
+ gpgrt_calloc                    New API.
+ gpgrt_strdup                    New API.
+ gpgrt_strconcat                 New API.
+ gpgrt_w32_reg_query_string      New API.
+ gpgrt_getenv                    New API.
+ gpgrt_setenv                    New API.
+ gpgrt_mkdir                     New API.
+ gpgrt_chdir                     New API.
+ gpgrt_getcwd                    New API.
 
 
 Noteworthy changes in version 1.27 (2017-02-28) [C22/A22/R0]

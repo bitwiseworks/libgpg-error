@@ -28,7 +28,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
 #ifdef HAVE_SYS_TIME_H
@@ -57,8 +56,8 @@
 #define DIM(array) (sizeof (array) / sizeof (*array))
 #endif
 
-#define READBUF_SIZE 4096
-#define WRITEBUF_SIZE 4096
+#define READBUF_SIZE 8192
+#define WRITEBUF_SIZE 8192
 
 
 typedef struct estream_cookie_w32_pollable *estream_cookie_w32_pollable_t;
@@ -119,32 +118,6 @@ struct estream_cookie_w32_pollable
 };
 
 
-static HANDLE
-set_synchronize (HANDLE hd)
-{
-#ifdef HAVE_W32CE_SYSTEM
-  return hd;
-#else
-  HANDLE new_hd;
-
-  /* For NT we have to set the sync flag.  It seems that the only way
-     to do it is by duplicating the handle.  Tsss...  */
-  if (!DuplicateHandle (GetCurrentProcess (), hd,
-			GetCurrentProcess (), &new_hd,
-			EVENT_MODIFY_STATE | SYNCHRONIZE, FALSE, 0))
-    {
-      trace_errno (1, ("DuplicateHandle failed: ec=%d", (int)GetLastError ()));
-      /* FIXME: Should translate the error code.  */
-      _gpg_err_set_errno (EIO);
-      return INVALID_HANDLE_VALUE;
-    }
-
-  CloseHandle (hd);
-  return new_hd;
-#endif
-}
-
-
 static DWORD CALLBACK
 reader (void *arg)
 {
@@ -170,7 +143,7 @@ reader (void *arg)
 	  trace (("%p: got space", ctx));
           EnterCriticalSection (&ctx->mutex);
         }
-      assert (((ctx->writepos + 1) % READBUF_SIZE != ctx->readpos));
+      gpgrt_assert (((ctx->writepos + 1) % READBUF_SIZE != ctx->readpos));
       if (ctx->stop_me)
 	{
           LeaveCriticalSection (&ctx->mutex);
@@ -178,7 +151,7 @@ reader (void *arg)
         }
       nbytes = (ctx->readpos + READBUF_SIZE
 		- ctx->writepos - 1) % READBUF_SIZE;
-      assert (nbytes);
+      gpgrt_assert (nbytes);
       if (nbytes > READBUF_SIZE - ctx->writepos)
 	nbytes = READBUF_SIZE - ctx->writepos;
       LeaveCriticalSection (&ctx->mutex);
@@ -239,7 +212,7 @@ reader (void *arg)
   CloseHandle (ctx->have_space_ev);
   CloseHandle (ctx->thread_hd);
   DeleteCriticalSection (&ctx->mutex);
-  _gpgrt_free (ctx);
+  free (ctx);  /* Standard free!  See comment in create_reader. */
 
   return 0;
 }
@@ -256,6 +229,13 @@ create_reader (estream_cookie_w32_pollable_t pcookie)
   sec_attr.nLength = sizeof sec_attr;
   sec_attr.bInheritHandle = FALSE;
 
+  /* The CTX must be allocated in standard system memory so that we
+   * won't use any custom allocation handler which may use our lock
+   * primitives for its implementation.  The problem here is that the
+   * syscall clamp mechanism (e.g. nPth) would be called recursively:
+   * 1. For example by the caller of _gpgrt_w32_poll and 2. by
+   * gpgrt_lock_lock on behalf of the the custom allocation and free
+   * functions.  */
   ctx = calloc (1, sizeof *ctx);
   if (!ctx)
     {
@@ -282,7 +262,6 @@ create_reader (estream_cookie_w32_pollable_t pcookie)
       return NULL;
     }
 
-  ctx->have_data_ev = set_synchronize (ctx->have_data_ev);
   InitializeCriticalSection (&ctx->mutex);
 
 #ifdef HAVE_W32CE_SYSTEM
@@ -542,7 +521,7 @@ writer (void *arg)
   CloseHandle (ctx->thread_hd);
   DeleteCriticalSection (&ctx->mutex);
   trace (("%p: writer is destroyed", ctx));
-  _gpgrt_free (ctx);
+  free (ctx); /* Standard free!  See comment in create_writer. */
 
   return 0;
 }
@@ -559,6 +538,7 @@ create_writer (estream_cookie_w32_pollable_t pcookie)
   sec_attr.nLength = sizeof sec_attr;
   sec_attr.bInheritHandle = FALSE;
 
+  /* See comment at create_reader.  */
   ctx = calloc (1, sizeof *ctx);
   if (!ctx)
     {
@@ -585,7 +565,6 @@ create_writer (estream_cookie_w32_pollable_t pcookie)
       return NULL;
     }
 
-  ctx->is_empty = set_synchronize (ctx->is_empty);
   InitializeCriticalSection (&ctx->mutex);
 
 #ifdef HAVE_W32CE_SYSTEM
@@ -734,7 +713,7 @@ func_w32_pollable_write (void *cookie, const void *buffer, size_t count)
 
   /* If no error occurred, the number of bytes in the buffer must be
      zero.  */
-  assert (!ctx->nbytes);
+  gpgrt_assert (!ctx->nbytes);
 
   if (count > WRITEBUF_SIZE)
     count = WRITEBUF_SIZE;
@@ -771,6 +750,8 @@ func_w32_pollable_write (void *cookie, const void *buffer, size_t count)
 }
 
 
+/* This is the core of _gpgrt_poll.  The caller needs to make sure that
+ * the syscall clamp has been engaged.  */
 int
 _gpgrt_w32_poll (gpgrt_poll_t *fds, size_t nfds, int timeout)
 {
@@ -880,11 +861,25 @@ _gpgrt_w32_poll (gpgrt_poll_t *fds, size_t nfds, int timeout)
     trace_append (("%d/%c ", waitidx[i], waitinfo[i]));
   trace_finish (("]"));
 #endif /*ENABLE_TRACING*/
-  if (!any)
-    return 0;
 
-  code = WaitForMultipleObjects (nwait, waitbuf, 0,
-                                 timeout == -1 ? INFINITE : timeout);
+  if (!any)
+    {
+      /* WFMO needs at least one object, thus we use use sleep here.
+       * INFINITE wait does not make any sense in this case, so we
+       * error out. */
+      if (timeout == -1)
+        {
+          _gpg_err_set_errno (EINVAL);
+          return -1;
+        }
+      if (timeout)
+        Sleep (timeout);
+      code = WAIT_TIMEOUT;
+    }
+  else
+    code = WaitForMultipleObjects (nwait, waitbuf, 0,
+                                   timeout == -1 ? INFINITE : timeout);
+
   if (code < WAIT_OBJECT_0 + nwait)
     {
       /* This WFMO is a really silly function: It does return either
@@ -899,7 +894,7 @@ _gpgrt_w32_poll (gpgrt_poll_t *fds, size_t nfds, int timeout)
 	{
 	  if (WaitForSingleObject (waitbuf[i], 0) == WAIT_OBJECT_0)
 	    {
-	      assert (waitidx[i] >=0 && waitidx[i] < nfds);
+	      gpgrt_assert (waitidx[i] >=0 && waitidx[i] < nfds);
               /* XXX: What if one wants read and write, is that
                  supported?  */
               if (fds[waitidx[i]].want_read)

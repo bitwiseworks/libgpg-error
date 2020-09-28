@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error-1.7\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"PO-Revision-Date: 2014-11-03 11:42+0200\n"
+"PO-Revision-Date: 2018-03-21 19:03+0100\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: Serbian <(nothing)>\n"
 "Language: sr\n"
@@ -1045,6 +1045,34 @@ msgstr ""
 msgid "Wrong name"
 msgstr "Непознат назив"
 
+#, fuzzy
+#| msgid "Not locked"
+msgid "Not authenticated"
+msgstr "Није закључано"
+
+#, fuzzy
+#| msgid "Unsupported protection"
+msgid "Bad authentication"
+msgstr "Неподржана заштита"
+
+#, fuzzy
+#| msgid "No agent running"
+msgid "No Keybox daemon running"
+msgstr "Нема покренутог агента"
+
+#, fuzzy
+#| msgid "SmartCard daemon error"
+msgid "Keybox daemon error"
+msgstr "Грешка позадинца паметне картице"
+
+msgid "Service is not running"
+msgstr ""
+
+#, fuzzy
+#| msgid "Keyserver error"
+msgid "Service error"
+msgstr "Грешка сервера кључа"
+
 msgid "System bug detected"
 msgstr ""
 
@@ -1485,6 +1513,105 @@ msgstr "15. код грешке који је одредио корисник"
 msgid "User defined error code 16"
 msgstr "16. код грешке који је одредио корисник"
 
+#, fuzzy
+#| msgid "Success"
+msgid "SQL success"
+msgstr "Успешно"
+
+#, fuzzy
+#| msgid "Syntax error"
+msgid "SQL error"
+msgstr "Садржајна грешка"
+
+msgid "Internal logic error in SQL library"
+msgstr ""
+
+msgid "Access permission denied (SQL)"
+msgstr ""
+
+msgid "SQL abort was requested"
+msgstr ""
+
+msgid "SQL database file is locked"
+msgstr ""
+
+msgid "An SQL table in the database is locked"
+msgstr ""
+
+msgid "SQL library ran out of core"
+msgstr ""
+
+msgid "Attempt to write a readonly SQL database"
+msgstr ""
+
+msgid "SQL operation terminated by interrupt"
+msgstr ""
+
+msgid "I/O error during SQL operation"
+msgstr ""
+
+msgid "SQL database disk image is malformed"
+msgstr ""
+
+msgid "Unknown opcode in SQL file control"
+msgstr ""
+
+msgid "Insertion failed because SQL database is full"
+msgstr ""
+
+msgid "Unable to open the SQL database file"
+msgstr ""
+
+#, fuzzy
+#| msgid "Protocol violation"
+msgid "SQL database lock protocol error"
+msgstr "Кршење протокола"
+
+msgid "(internal SQL code: empty)"
+msgstr ""
+
+msgid "SQL database schema changed"
+msgstr ""
+
+msgid "String or blob exceeds size limit (SQL)"
+msgstr ""
+
+msgid "SQL abort due to constraint violation"
+msgstr ""
+
+msgid "Data type mismatch (SQL)"
+msgstr ""
+
+msgid "SQL library used incorrectly"
+msgstr ""
+
+msgid "SQL library uses unsupported OS features"
+msgstr ""
+
+msgid "Authorization denied (SQL)"
+msgstr ""
+
+msgid "(unused SQL code: format)"
+msgstr ""
+
+msgid "SQL bind parameter out of range"
+msgstr ""
+
+msgid "File opened that is not an SQL database file"
+msgstr ""
+
+msgid "Notifications from SQL logger"
+msgstr ""
+
+msgid "Warnings from SQL logger"
+msgstr ""
+
+msgid "SQL has another row ready"
+msgstr ""
+
+msgid "SQL has finished executing"
+msgstr ""
+
 msgid "System error w/o errno"
 msgstr "Број в/о грешке системске грешке"
 
@@ -1497,13 +1624,123 @@ msgstr "Крај датотеке"
 msgid "Unknown error code"
 msgstr "Непознат код грешке"
 
-#, c-format
-msgid "Usage: %s GPG-ERROR [...]\n"
-msgstr "Употреба: %s GPG-ERROR [...]\n"
+#, fuzzy
+#| msgid "Data not encrypted"
+msgid "argument not expected"
+msgstr "Подаци нису шифровани"
+
+#, fuzzy
+#| msgid "IPC read error"
+msgid "read error"
+msgstr "Грешка читања ИПЦ-а"
+
+#, fuzzy
+#| msgid "Line too long"
+msgid "keyword too long"
+msgstr "Ред је предуг"
+
+#, fuzzy
+#| msgid "Missing value"
+msgid "missing argument"
+msgstr "Недостаје вредност"
+
+#, fuzzy
+#| msgid "Invalid argument"
+msgid "invalid argument"
+msgstr "Неисправан аргумент"
+
+#, fuzzy
+#| msgid "Invalid card"
+msgid "invalid command"
+msgstr "Неисправна картица"
+
+#, fuzzy
+#| msgid "Invalid OID string"
+msgid "invalid alias definition"
+msgstr "Неисправна ОИД ниска"
+
+#, fuzzy
+#| msgid "Configuration error"
+msgid "permission error"
+msgstr "Грешка подешавања"
+
+msgid "out of core"
+msgstr ""
+
+#, fuzzy
+#| msgid "Invalid card"
+msgid "invalid meta command"
+msgstr "Неисправна картица"
+
+#, fuzzy
+#| msgid "Unknown command"
+msgid "unknown meta command"
+msgstr "Непозната наредба"
+
+#, fuzzy
+#| msgid "Unexpected IPC command"
+msgid "unexpected meta command"
+msgstr "Неочекивана ИПЦ наредба"
+
+#, fuzzy
+#| msgid "Invalid operation code"
+msgid "invalid option"
+msgstr "Неисправна шифра радње"
 
 #, c-format
-msgid "%s: warning: could not recognize %s\n"
-msgstr "%s: упозорење: не могу да препознам „%s“\n"
+msgid "missing argument for option \"%.50s\"\n"
+msgstr ""
+
+#, c-format
+msgid "invalid argument for option \"%.50s\"\n"
+msgstr ""
+
+#, c-format
+msgid "option \"%.50s\" does not expect an argument\n"
+msgstr ""
+
+#, c-format
+msgid "invalid command \"%.50s\"\n"
+msgstr ""
+
+#, c-format
+msgid "option \"%.50s\" is ambiguous\n"
+msgstr ""
+
+#, c-format
+msgid "command \"%.50s\" is ambiguous\n"
+msgstr ""
+
+#, fuzzy, c-format
+#| msgid "Invalid operation code"
+msgid "invalid option \"%.50s\"\n"
+msgstr "Неисправна шифра радње"
+
+#, c-format
+msgid "Note: no default option file '%s'\n"
+msgstr ""
+
+#, c-format
+msgid "reading options from '%s'\n"
+msgstr ""
+
+#, c-format
+msgid "option file '%s': %s\n"
+msgstr ""
+
+#, c-format
+msgid "Note: ignoring option \"--%s\" due to global config\n"
+msgstr ""
+
+msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
+msgstr ""
+
+#, c-format
+msgid "warning: could not recognize %s\n"
+msgstr "упозорење: не могу да препознам „%s“\n"
+
+#~ msgid "Usage: %s GPG-ERROR [...]\n"
+#~ msgstr "Употреба: %s GPG-ERROR [...]\n"
 
 #, fuzzy
 #~| msgid "Resources exhausted"

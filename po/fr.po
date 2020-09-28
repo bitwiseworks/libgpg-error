@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error-1.17\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"PO-Revision-Date: 2014-11-01 22:07-0400\n"
+"PO-Revision-Date: 2018-03-21 18:58+0100\n"
 "Last-Translator: David Prévot <david@tilapin.org>\n"
 "Language-Team: French <traduc@traduc.org>\n"
 "Language: fr\n"
@@ -987,6 +987,34 @@ msgstr ""
 msgid "Wrong name"
 msgstr "Nom inconnu"
 
+#, fuzzy
+#| msgid "Not enabled"
+msgid "Not authenticated"
+msgstr "Non activé"
+
+#, fuzzy
+#| msgid "Unsupported protection"
+msgid "Bad authentication"
+msgstr "Protection non prise en charge"
+
+#, fuzzy
+#| msgid "No agent running"
+msgid "No Keybox daemon running"
+msgstr "Pas d'agent en cours d'exécution"
+
+#, fuzzy
+#| msgid "SmartCard daemon error"
+msgid "Keybox daemon error"
+msgstr "Erreur de démon SmartCard"
+
+msgid "Service is not running"
+msgstr ""
+
+#, fuzzy
+#| msgid "Keyserver error"
+msgid "Service error"
+msgstr "Erreur du serveur de clefs"
+
 msgid "System bug detected"
 msgstr ""
 
@@ -1431,6 +1459,105 @@ msgstr "Code d'erreur 15 défini par l'utilisateur"
 msgid "User defined error code 16"
 msgstr "Code d'erreur 16 défini par l'utilisateur"
 
+#, fuzzy
+#| msgid "Success"
+msgid "SQL success"
+msgstr "Réussite"
+
+#, fuzzy
+#| msgid "Syntax error"
+msgid "SQL error"
+msgstr "Erreur de syntaxe"
+
+msgid "Internal logic error in SQL library"
+msgstr ""
+
+msgid "Access permission denied (SQL)"
+msgstr ""
+
+msgid "SQL abort was requested"
+msgstr ""
+
+msgid "SQL database file is locked"
+msgstr ""
+
+msgid "An SQL table in the database is locked"
+msgstr ""
+
+msgid "SQL library ran out of core"
+msgstr ""
+
+msgid "Attempt to write a readonly SQL database"
+msgstr ""
+
+msgid "SQL operation terminated by interrupt"
+msgstr ""
+
+msgid "I/O error during SQL operation"
+msgstr ""
+
+msgid "SQL database disk image is malformed"
+msgstr ""
+
+msgid "Unknown opcode in SQL file control"
+msgstr ""
+
+msgid "Insertion failed because SQL database is full"
+msgstr ""
+
+msgid "Unable to open the SQL database file"
+msgstr ""
+
+#, fuzzy
+#| msgid "Protocol violation"
+msgid "SQL database lock protocol error"
+msgstr "Violation de protocole"
+
+msgid "(internal SQL code: empty)"
+msgstr ""
+
+msgid "SQL database schema changed"
+msgstr ""
+
+msgid "String or blob exceeds size limit (SQL)"
+msgstr ""
+
+msgid "SQL abort due to constraint violation"
+msgstr ""
+
+msgid "Data type mismatch (SQL)"
+msgstr ""
+
+msgid "SQL library used incorrectly"
+msgstr ""
+
+msgid "SQL library uses unsupported OS features"
+msgstr ""
+
+msgid "Authorization denied (SQL)"
+msgstr ""
+
+msgid "(unused SQL code: format)"
+msgstr ""
+
+msgid "SQL bind parameter out of range"
+msgstr ""
+
+msgid "File opened that is not an SQL database file"
+msgstr ""
+
+msgid "Notifications from SQL logger"
+msgstr ""
+
+msgid "Warnings from SQL logger"
+msgstr ""
+
+msgid "SQL has another row ready"
+msgstr ""
+
+msgid "SQL has finished executing"
+msgstr ""
+
 msgid "System error w/o errno"
 msgstr "Erreur système sans numéro"
 
@@ -1443,13 +1570,109 @@ msgstr "Fin de fichier"
 msgid "Unknown error code"
 msgstr "Code d'erreur inconnu"
 
-#, c-format
-msgid "Usage: %s GPG-ERROR [...]\n"
-msgstr "Utilisation : %s GPG-ERROR [...]\n"
+msgid "argument not expected"
+msgstr "argument inattendu"
+
+msgid "read error"
+msgstr "erreur de lecture"
+
+msgid "keyword too long"
+msgstr "mot-clef trop long"
+
+msgid "missing argument"
+msgstr "argument manquant"
+
+msgid "invalid argument"
+msgstr "argument incorrect"
+
+msgid "invalid command"
+msgstr "commande incorrecte"
+
+msgid "invalid alias definition"
+msgstr "définition d'alias incorrecte"
+
+#, fuzzy
+#| msgid "Configuration error"
+msgid "permission error"
+msgstr "Erreur de configuration"
+
+msgid "out of core"
+msgstr "hors limite"
+
+#, fuzzy
+#| msgid "invalid command"
+msgid "invalid meta command"
+msgstr "commande incorrecte"
+
+#, fuzzy
+#| msgid "Unknown command"
+msgid "unknown meta command"
+msgstr "Commande inconnue"
+
+#, fuzzy
+#| msgid "Unexpected IPC command"
+msgid "unexpected meta command"
+msgstr "Commande IPC inattendue"
+
+msgid "invalid option"
+msgstr "option incorrecte"
 
 #, c-format
-msgid "%s: warning: could not recognize %s\n"
-msgstr "%s : attention : impossible de reconnaître %s\n"
+msgid "missing argument for option \"%.50s\"\n"
+msgstr "argument manquant pour l'option « %.50s »\n"
+
+#, c-format
+msgid "invalid argument for option \"%.50s\"\n"
+msgstr "argument incorrect pour l'option « %.50s »\n"
+
+#, c-format
+msgid "option \"%.50s\" does not expect an argument\n"
+msgstr "l'option « %.50s » n'attend pas d'argument\n"
+
+#, c-format
+msgid "invalid command \"%.50s\"\n"
+msgstr "commande « %.50s » incorrecte\n"
+
+#, c-format
+msgid "option \"%.50s\" is ambiguous\n"
+msgstr "l'option « %.50s » est ambiguë\n"
+
+#, c-format
+msgid "command \"%.50s\" is ambiguous\n"
+msgstr "la commande « %.50s » est ambiguë\n"
+
+#, c-format
+msgid "invalid option \"%.50s\"\n"
+msgstr "option « %.50s » incorrecte\n"
+
+#, c-format
+msgid "Note: no default option file '%s'\n"
+msgstr ""
+
+#, c-format
+msgid "reading options from '%s'\n"
+msgstr ""
+
+#, c-format
+msgid "option file '%s': %s\n"
+msgstr ""
+
+#, c-format
+msgid "Note: ignoring option \"--%s\" due to global config\n"
+msgstr ""
+
+msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
+msgstr ""
+
+#, c-format
+msgid "warning: could not recognize %s\n"
+msgstr "attention : impossible de reconnaître %s\n"
+
+#~ msgid "out of core\n"
+#~ msgstr "hors limite\n"
+
+#~ msgid "Usage: %s GPG-ERROR [...]\n"
+#~ msgstr "Utilisation : %s GPG-ERROR [...]\n"
 
 #, fuzzy
 #~| msgid "Resources exhausted"

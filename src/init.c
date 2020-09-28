@@ -61,6 +61,20 @@ static void drop_locale_dir (char *locale_dir);
 #endif /*!HAVE_W32_SYSTEM*/
 
 
+/* The list of emergency cleanup functions; see _gpgrt_abort and
+ * _gpgrt_add_emergency_cleanup.  */
+struct emergency_cleanup_item_s;
+typedef struct emergency_cleanup_item_s *emergency_cleanup_item_t;
+struct emergency_cleanup_item_s
+{
+  emergency_cleanup_item_t next;
+  void (*func) (void);
+};
+static emergency_cleanup_item_t emergency_cleanup_list;
+
+
+
+
 /* The realloc function as set by gpgrt_set_alloc_func.  */
 static void *(*custom_realloc)(void *a, size_t n);
 
@@ -106,7 +120,7 @@ _gpg_err_init (void)
       if (tls_index == TLS_OUT_OF_INDEXES)
         {
           /* No way to continue - commit suicide.  */
-          abort ();
+          _gpgrt_abort ();
         }
       _gpg_w32__init_gettext_module ();
       real_init ();
@@ -151,6 +165,67 @@ _gpg_err_deinit (int mode)
 }
 
 
+/* Add the emergency cleanup function F to the list of those function.
+ * If the a function with that address has already been registered, it
+ * is not added a second time.  These emergency functions are called
+ * whenever gpgrt_abort is called and at no other place.  Like signal
+ * handles the emergency cleanup functions shall not call any
+ * non-trivial functions and return as soon as possible.  They allow
+ * to cleanup internal states which should not go into a core dumps or
+ * similar.  This is independent of any atexit functions.  We don't
+ * use locks here because in an emergency case we can't use them
+ * anyway.  */
+void
+_gpgrt_add_emergency_cleanup (void (*f)(void))
+{
+  emergency_cleanup_item_t item;
+
+  for (item = emergency_cleanup_list; item; item = item->next)
+    if (item->func == f)
+      return; /* Function has already been registered.  */
+
+  /* We use a standard malloc here.  */
+  item = malloc (sizeof *item);
+  if (item)
+    {
+      item->func = f;
+      item->next = emergency_cleanup_list;
+      emergency_cleanup_list = item;
+    }
+  else
+    _gpgrt_log_fatal ("out of core in gpgrt_add_emergency_cleanup\n");
+}
+
+
+/* Run the emergency handlers.  No locks are used because we are anyway
+ * in an emergency state.  We also can't release any memory.  */
+static void
+run_emergency_cleanup (void)
+{
+  emergency_cleanup_item_t next;
+  void (*f)(void);
+
+  while (emergency_cleanup_list)
+    {
+      next = emergency_cleanup_list->next;
+      f = emergency_cleanup_list->func;
+      emergency_cleanup_list->func = NULL;
+      emergency_cleanup_list = next;
+      if (f)
+        f ();
+    }
+}
+
+
+/* Wrapper around abort to be able to run all emergency cleanup
+ * functions.  */
+void
+_gpgrt_abort (void)
+{
+  run_emergency_cleanup ();
+  abort ();
+}
+
 
 
 /* Register F as allocation function.  This function is used for all
@@ -181,6 +256,55 @@ _gpgrt_realloc (void *a, size_t n)
     return malloc (n);
 
   return realloc (a, n);
+}
+
+
+/* This is safe version of realloc useful for reallocing a calloced
+ * array.  There are two ways to call it:  The first example
+ * reallocates the array A to N elements each of SIZE but does not
+ * clear the newly allocated elements:
+ *
+ *  p = gpgrt_reallocarray (a, n, n, nsize);
+ *
+ * Note that when NOLD is larger than N no cleaning is needed anyway.
+ * The second example reallocates an array of size NOLD to N elements
+ * each of SIZE but clear the newly allocated elements:
+ *
+ *  p = gpgrt_reallocarray (a, nold, n, nsize);
+ *
+ * Note that gpgrt_reallocarray (NULL, 0, n, nsize) is equivalent to
+ * _gpgrt_calloc (n, nsize).
+ *
+ */
+void *
+_gpgrt_reallocarray (void *a, size_t oldnmemb, size_t nmemb, size_t size)
+{
+  size_t oldbytes, bytes;
+  char *p;
+
+  bytes = nmemb * size; /* size_t is unsigned so the behavior on overflow
+                         * is defined. */
+  if (size && bytes / size != nmemb)
+    {
+      _gpg_err_set_errno (ENOMEM);
+      return NULL;
+    }
+
+  p = _gpgrt_realloc (a, bytes);
+  if (p && oldnmemb < nmemb)
+    {
+      /* OLDNMEMBS is lower than NMEMB thus the user asked for a
+         calloc.  Clear all newly allocated members.  */
+      oldbytes = oldnmemb * size;
+      if (size && oldbytes / size != oldnmemb)
+        {
+          xfree (p);
+          _gpg_err_set_errno (ENOMEM);
+          return NULL;
+        }
+      memset (p + oldbytes, 0, bytes - oldbytes);
+    }
+  return p;
 }
 
 
@@ -228,7 +352,7 @@ _gpgrt_strdup (const char *string)
 }
 
 
-/* Helper for _gpgrt_stdconcat and gpgrt_strconcat.  */
+/* Helper for _gpgrt_strconcat and gpgrt_strconcat.  */
 char *
 _gpgrt_strconcat_core (const char *s1, va_list arg_ptr)
 {
@@ -300,7 +424,11 @@ _gpg_err_set_errno (int err)
 
 
 /* Internal tracing functions.  Except for TRACE_FP we use flockfile
- * and funlockfile to protect their use. */
+ * and funlockfile to protect their use.
+ *
+ * Warning: Take care with the trace functions - they may not use any
+ * of our services, in particular not the syscall clamp mechanism for
+ * reasons explained in w32-stream.c:create_reader.  */
 static FILE *trace_fp;
 static int trace_save_errno;
 static int trace_with_errno;
@@ -499,7 +627,7 @@ get_tls (void)
       if (!tls)
         {
           /* No way to continue - commit suicide.  */
-          abort ();
+          _gpgrt_abort ();
         }
       tls->gt_use_utf8 = 0;
       TlsSetValue (tls_index, tls);
@@ -576,7 +704,7 @@ DllMain (HINSTANCE hinst, DWORD reason, LPVOID reserved)
       /* If we have not constructors (e.g. MSC) we call it here.  */
       _gpg_w32__init_gettext_module ();
 #endif
-      /* falltru.  */
+      /* fallthru.  */
     case DLL_THREAD_ATTACH:
       tls = LocalAlloc (LPTR, sizeof *tls);
       if (!tls)

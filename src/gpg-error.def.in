@@ -189,8 +189,55 @@ EXPORTS
  gpgrt_strdup                 @144
  gpgrt_strconcat              @145
 
-#ifdef HAVE_W32_SYSTEM
- gpgrt_w32_reg_query_string   @148
-#endif
+ gpgrt_w32_reg_query_string   @146
+
+ gpgrt_getenv                 @147
+ gpgrt_setenv                 @148
+ gpgrt_mkdir                  @149
+ gpgrt_chdir                  @150
+ gpgrt_getcwd                 @151
+
+;; API not yet finished for:
+;; gpgrt_make_pipe              @152
+;; gpgrt_spawn_process          @153
+;; gpgrt_spawn_process_fd       @154
+;; gpgrt_spawn_process_detached @155
+;; gpgrt_wait_process           @156
+;; gpgrt_wait_processes         @157
+;; gpgrt_kill_process           @158
+;; gpgrt_release_process        @159
+
+ gpgrt_argparse               @160
+ gpgrt_usage                  @161
+ gpgrt_strusage               @162
+ gpgrt_set_strusage           @163
+ gpgrt_set_usage_outfnc       @164
+ gpgrt_set_fixed_string_mapper  @165
+
+ gpgrt_b64enc_start           @166
+ gpgrt_b64enc_write           @167
+ gpgrt_b64enc_finish          @168
+
+ gpgrt_cmp_version            @169
+
+ gpgrt_ftruncate              @170
+ gpgrt_fprintf_sf             @171
+ gpgrt_fprintf_sf_unlocked    @172
+
+ gpgrt_w32_override_locale    @173
+
+ gpgrt_add_emergency_cleanup  @174
+ gpgrt_abort                  @175
+
+ gpgrt_set_confdir            @176
+ gpgrt_argparser              @177
+
+ gpgrt_fnameconcat            @178
+ gpgrt_absfnameconcat         @179
+
+ gpgrt_reallocarray           @180
+ gpgrt_fclose                 @181
+
+ gpgrt_fcancel                @182
 
 ;; end of file with public symbols for Windows.

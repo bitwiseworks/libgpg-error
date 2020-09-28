@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error 1.7\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"PO-Revision-Date: 2013-02-23 20:11+0100\n"
+"PO-Revision-Date: 2018-03-21 19:04+0100\n"
 "Last-Translator: Aron Xu <happyaron.xu@gmail.com>\n"
 "Language-Team: Chinese (simplified) <translation-team-zh-cn@lists."
 "sourceforge.net>\n"
@@ -1033,6 +1033,33 @@ msgstr ""
 msgid "Wrong name"
 msgstr "未知名称"
 
+#, fuzzy
+msgid "Not authenticated"
+msgstr "未锁定"
+
+#, fuzzy
+#| msgid "Unsupported protection"
+msgid "Bad authentication"
+msgstr "不受支持的保护"
+
+#, fuzzy
+#| msgid "No agent running"
+msgid "No Keybox daemon running"
+msgstr "未运行代理"
+
+#, fuzzy
+#| msgid "SmartCard daemon error"
+msgid "Keybox daemon error"
+msgstr "智能卡守护程序错误"
+
+msgid "Service is not running"
+msgstr ""
+
+#, fuzzy
+#| msgid "Keyserver error"
+msgid "Service error"
+msgstr "密钥服务器错误"
+
 msgid "System bug detected"
 msgstr ""
 
@@ -1470,6 +1497,105 @@ msgstr "用户定义的错误代码15"
 msgid "User defined error code 16"
 msgstr "用户定义的错误代码16"
 
+#, fuzzy
+#| msgid "Success"
+msgid "SQL success"
+msgstr "成功"
+
+#, fuzzy
+#| msgid "Syntax error"
+msgid "SQL error"
+msgstr "语法错误"
+
+msgid "Internal logic error in SQL library"
+msgstr ""
+
+msgid "Access permission denied (SQL)"
+msgstr ""
+
+msgid "SQL abort was requested"
+msgstr ""
+
+msgid "SQL database file is locked"
+msgstr ""
+
+msgid "An SQL table in the database is locked"
+msgstr ""
+
+msgid "SQL library ran out of core"
+msgstr ""
+
+msgid "Attempt to write a readonly SQL database"
+msgstr ""
+
+msgid "SQL operation terminated by interrupt"
+msgstr ""
+
+msgid "I/O error during SQL operation"
+msgstr ""
+
+msgid "SQL database disk image is malformed"
+msgstr ""
+
+msgid "Unknown opcode in SQL file control"
+msgstr ""
+
+msgid "Insertion failed because SQL database is full"
+msgstr ""
+
+msgid "Unable to open the SQL database file"
+msgstr ""
+
+#, fuzzy
+#| msgid "Protocol violation"
+msgid "SQL database lock protocol error"
+msgstr "违反协议"
+
+msgid "(internal SQL code: empty)"
+msgstr ""
+
+msgid "SQL database schema changed"
+msgstr ""
+
+msgid "String or blob exceeds size limit (SQL)"
+msgstr ""
+
+msgid "SQL abort due to constraint violation"
+msgstr ""
+
+msgid "Data type mismatch (SQL)"
+msgstr ""
+
+msgid "SQL library used incorrectly"
+msgstr ""
+
+msgid "SQL library uses unsupported OS features"
+msgstr ""
+
+msgid "Authorization denied (SQL)"
+msgstr ""
+
+msgid "(unused SQL code: format)"
+msgstr ""
+
+msgid "SQL bind parameter out of range"
+msgstr ""
+
+msgid "File opened that is not an SQL database file"
+msgstr ""
+
+msgid "Notifications from SQL logger"
+msgstr ""
+
+msgid "Warnings from SQL logger"
+msgstr ""
+
+msgid "SQL has another row ready"
+msgstr ""
+
+msgid "SQL has finished executing"
+msgstr ""
+
 msgid "System error w/o errno"
 msgstr ""
 
@@ -1482,13 +1608,116 @@ msgstr "文件结尾"
 msgid "Unknown error code"
 msgstr "未知的错误代码"
 
+#, fuzzy
+msgid "argument not expected"
+msgstr "不允许使用管理员命令\n"
+
+#, fuzzy
+msgid "read error"
+msgstr "文件读取错误"
+
+#, fuzzy
+msgid "keyword too long"
+msgstr "列太长"
+
+#, fuzzy
+msgid "missing argument"
+msgstr "无效的参数"
+
+#, fuzzy
+#| msgid "invalid armor"
+msgid "invalid argument"
+msgstr "无效的 ASCII 封装格式"
+
+#, fuzzy
+msgid "invalid command"
+msgstr "仅供管理员使用的命令\n"
+
+#, fuzzy
+msgid "invalid alias definition"
+msgstr "无效的列表选项\n"
+
+#, fuzzy
+#| msgid "Configuration error"
+msgid "permission error"
+msgstr "配置错误"
+
+#, fuzzy
+msgid "out of core"
+msgstr "可选"
+
+#, fuzzy
+msgid "invalid meta command"
+msgstr "仅供管理员使用的命令\n"
+
+#, fuzzy
+#| msgid "Unknown command"
+msgid "unknown meta command"
+msgstr "未知命令"
+
+#, fuzzy
+#| msgid "Unexpected error"
+msgid "unexpected meta command"
+msgstr "意外错误"
+
+#, fuzzy
+msgid "invalid option"
+msgstr "无效的列表选项\n"
+
 #, c-format
-msgid "Usage: %s GPG-ERROR [...]\n"
+msgid "missing argument for option \"%.50s\"\n"
+msgstr ""
+
+#, fuzzy, c-format
+msgid "invalid argument for option \"%.50s\"\n"
+msgstr "无效的列表选项\n"
+
+#, c-format
+msgid "option \"%.50s\" does not expect an argument\n"
+msgstr ""
+
+#, fuzzy, c-format
+msgid "invalid command \"%.50s\"\n"
+msgstr "无效的指令(尝试“help”)\n"
+
+#, c-format
+msgid "option \"%.50s\" is ambiguous\n"
 msgstr ""
 
 #, c-format
-msgid "%s: warning: could not recognize %s\n"
-msgstr "%s：警告：无法识别 %s\n"
+msgid "command \"%.50s\" is ambiguous\n"
+msgstr ""
+
+#, fuzzy, c-format
+msgid "invalid option \"%.50s\"\n"
+msgstr "无效的列表选项\n"
+
+#, c-format
+msgid "Note: no default option file '%s'\n"
+msgstr ""
+
+#, c-format
+msgid "reading options from '%s'\n"
+msgstr ""
+
+#, c-format
+msgid "option file '%s': %s\n"
+msgstr ""
+
+#, c-format
+msgid "Note: ignoring option \"--%s\" due to global config\n"
+msgstr ""
+
+msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
+msgstr ""
+
+#, c-format
+msgid "warning: could not recognize %s\n"
+msgstr "警告：无法识别 %s\n"
+
+#, fuzzy
+#~ msgid "out of core\n"
+#~ msgstr "可选"
 
 #, fuzzy
 #~| msgid "Resources exhausted"

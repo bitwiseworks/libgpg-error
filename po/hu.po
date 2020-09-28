@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error-1.7\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"PO-Revision-Date: 2015-01-09 10:00+0100\n"
+"PO-Revision-Date: 2018-03-21 19:01+0100\n"
 "Last-Translator: Balázs Úr <urbalazs@gmail.com>\n"
 "Language-Team: Hungarian <translation-team-hu@lists.sourceforge.net>\n"
 "Language: hu\n"
@@ -1046,6 +1046,34 @@ msgstr ""
 msgid "Wrong name"
 msgstr "Ismeretlen név"
 
+#, fuzzy
+#| msgid "Not locked"
+msgid "Not authenticated"
+msgstr "Nincs zárolva"
+
+#, fuzzy
+#| msgid "Unsupported protection"
+msgid "Bad authentication"
+msgstr "Nem támogatott védelem"
+
+#, fuzzy
+#| msgid "No agent running"
+msgid "No Keybox daemon running"
+msgstr "Nincs futó ügynök"
+
+#, fuzzy
+#| msgid "SmartCard daemon error"
+msgid "Keybox daemon error"
+msgstr "SmartCard démon hiba"
+
+msgid "Service is not running"
+msgstr ""
+
+#, fuzzy
+#| msgid "Keyserver error"
+msgid "Service error"
+msgstr "Kulcskiszolgáló hiba"
+
 msgid "System bug detected"
 msgstr ""
 
@@ -1486,6 +1514,105 @@ msgstr "15. felhasználó által megadott hibakód"
 msgid "User defined error code 16"
 msgstr "16. felhasználó által megadott hibakód"
 
+#, fuzzy
+#| msgid "Success"
+msgid "SQL success"
+msgstr "Sikeres"
+
+#, fuzzy
+#| msgid "Syntax error"
+msgid "SQL error"
+msgstr "Szintaktikai hiba"
+
+msgid "Internal logic error in SQL library"
+msgstr ""
+
+msgid "Access permission denied (SQL)"
+msgstr ""
+
+msgid "SQL abort was requested"
+msgstr ""
+
+msgid "SQL database file is locked"
+msgstr ""
+
+msgid "An SQL table in the database is locked"
+msgstr ""
+
+msgid "SQL library ran out of core"
+msgstr ""
+
+msgid "Attempt to write a readonly SQL database"
+msgstr ""
+
+msgid "SQL operation terminated by interrupt"
+msgstr ""
+
+msgid "I/O error during SQL operation"
+msgstr ""
+
+msgid "SQL database disk image is malformed"
+msgstr ""
+
+msgid "Unknown opcode in SQL file control"
+msgstr ""
+
+msgid "Insertion failed because SQL database is full"
+msgstr ""
+
+msgid "Unable to open the SQL database file"
+msgstr ""
+
+#, fuzzy
+#| msgid "Protocol violation"
+msgid "SQL database lock protocol error"
+msgstr "Protokollsértés"
+
+msgid "(internal SQL code: empty)"
+msgstr ""
+
+msgid "SQL database schema changed"
+msgstr ""
+
+msgid "String or blob exceeds size limit (SQL)"
+msgstr ""
+
+msgid "SQL abort due to constraint violation"
+msgstr ""
+
+msgid "Data type mismatch (SQL)"
+msgstr ""
+
+msgid "SQL library used incorrectly"
+msgstr ""
+
+msgid "SQL library uses unsupported OS features"
+msgstr ""
+
+msgid "Authorization denied (SQL)"
+msgstr ""
+
+msgid "(unused SQL code: format)"
+msgstr ""
+
+msgid "SQL bind parameter out of range"
+msgstr ""
+
+msgid "File opened that is not an SQL database file"
+msgstr ""
+
+msgid "Notifications from SQL logger"
+msgstr ""
+
+msgid "Warnings from SQL logger"
+msgstr ""
+
+msgid "SQL has another row ready"
+msgstr ""
+
+msgid "SQL has finished executing"
+msgstr ""
+
 msgid "System error w/o errno"
 msgstr "Rendszerhiba w/o hibaszám"
 
@@ -1498,13 +1625,119 @@ msgstr "Fájl vége"
 msgid "Unknown error code"
 msgstr "Ismeretlen hibakód"
 
-#, c-format
-msgid "Usage: %s GPG-ERROR [...]\n"
-msgstr "Használat: %s GPG-ERROR […]\n"
+#, fuzzy
+msgid "argument not expected"
+msgstr "Írom a titkos kulcsot a %s állományba.\n"
+
+#, fuzzy
+msgid "read error"
+msgstr "állományolvasási hiba"
+
+#, fuzzy
+msgid "keyword too long"
+msgstr "A sor túl hosszú!\n"
+
+#, fuzzy
+msgid "missing argument"
+msgstr "érvénytelen argumentum"
+
+#, fuzzy
+#| msgid "invalid armor"
+msgid "invalid argument"
+msgstr "érvénytelen páncél"
+
+#, fuzzy
+msgid "invalid command"
+msgstr "Egymásnak ellentmondó parancsok!\n"
+
+#, fuzzy
+msgid "invalid alias definition"
+msgstr "Érvénytelen import opciók!\n"
+
+#, fuzzy
+#| msgid "Configuration error"
+msgid "permission error"
+msgstr "Beállítási hiba"
+
+#, fuzzy
+msgid "out of core"
+msgstr "nem feldolgozott"
+
+#, fuzzy
+msgid "invalid meta command"
+msgstr "Egymásnak ellentmondó parancsok!\n"
+
+#, fuzzy
+#| msgid "Unknown command"
+msgid "unknown meta command"
+msgstr "Ismeretlen parancs"
+
+#, fuzzy
+#| msgid "Unexpected IPC command"
+msgid "unexpected meta command"
+msgstr "Váratlan IPC parancs"
+
+#, fuzzy
+msgid "invalid option"
+msgstr "Érvénytelen import opciók!\n"
 
 #, c-format
-msgid "%s: warning: could not recognize %s\n"
-msgstr "%s: figyelmeztetés: nem sikerült felismerni: %s\n"
+msgid "missing argument for option \"%.50s\"\n"
+msgstr ""
+
+#, fuzzy, c-format
+msgid "invalid argument for option \"%.50s\"\n"
+msgstr "Érvénytelen import opciók!\n"
+
+#, c-format
+msgid "option \"%.50s\" does not expect an argument\n"
+msgstr ""
+
+#, fuzzy, c-format
+msgid "invalid command \"%.50s\"\n"
+msgstr "Érvénytelen parancs! (Próbálja a súgót: \"help\".)\n"
+
+#, c-format
+msgid "option \"%.50s\" is ambiguous\n"
+msgstr ""
+
+#, c-format
+msgid "command \"%.50s\" is ambiguous\n"
+msgstr ""
+
+#, fuzzy, c-format
+msgid "invalid option \"%.50s\"\n"
+msgstr "Érvénytelen import opciók!\n"
+
+#, c-format
+msgid "Note: no default option file '%s'\n"
+msgstr ""
+
+#, c-format
+msgid "reading options from '%s'\n"
+msgstr ""
+
+#, c-format
+msgid "option file '%s': %s\n"
+msgstr ""
+
+#, c-format
+msgid "Note: ignoring option \"--%s\" due to global config\n"
+msgstr ""
+
+msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
+msgstr ""
+
+#, c-format
+msgid "warning: could not recognize %s\n"
+msgstr "figyelmeztetés: nem sikerült felismerni: %s\n"
+
+#, fuzzy
+#~ msgid "out of core\n"
+#~ msgstr "nem feldolgozott"
+
+#~ msgid "Usage: %s GPG-ERROR [...]\n"
+#~ msgstr "Használat: %s GPG-ERROR […]\n"
 
 #, fuzzy
 #~| msgid "Resources exhausted"

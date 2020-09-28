@@ -19,12 +19,10 @@
 
 #include <config.h>
 
-#include <assert.h>
 #include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <gpg-error.h>
 #include <limits.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -40,9 +38,9 @@
 #include <readline/history.h>
 #endif
 
-#include "../../common/util.h"
-#include "../../common/exechelp.h"
-#include "../../common/sysutils.h"
+/* #include "../../common/util.h" */
+/* #include "../../common/exechelp.h" */
+/* #include "../../common/sysutils.h" */
 
 #include "private.h"
 #include "ffi.h"
@@ -236,7 +234,7 @@ do_getenv (scheme *sc, pointer args)
   char *value;
   FFI_ARG_OR_RETURN (sc, char *, name, string, args);
   FFI_ARGS_DONE_OR_RETURN (sc, args);
-  value = getenv (name);
+  value = gpgrt_getenv (name);
   FFI_RETURN_STRING (sc, value ? value : "");
 }
 
@@ -244,6 +242,7 @@ static pointer
 do_setenv (scheme *sc, pointer args)
 {
   FFI_PROLOG ();
+  gpg_err_code_t ec;
   char *name;
   char *value;
   int overwrite;
@@ -251,8 +250,8 @@ do_setenv (scheme *sc, pointer args)
   FFI_ARG_OR_RETURN (sc, char *, value, string, args);
   FFI_ARG_OR_RETURN (sc, int, overwrite, bool, args);
   FFI_ARGS_DONE_OR_RETURN (sc, args);
-  if (gnupg_setenv (name, value, overwrite))
-    FFI_RETURN_ERR (sc, gpg_error_from_syserror ());
+  if ((ec = gpgrt_setenv (name, value, overwrite)))
+    FFI_RETURN_ERR (sc, ec);
   FFI_RETURN (sc);
 }
 
@@ -376,7 +375,7 @@ do_mkdtemp (scheme *sc, pointer args)
     FFI_RETURN_ERR (sc, EINVAL);
   strncpy (buffer, template, sizeof buffer);
 
-  name = gnupg_mkdtemp (buffer);
+  name = NULL; /*gnupg_mkdtemp (buffer);*/
   if (name == NULL)
     FFI_RETURN_ERR (sc, gpg_error_from_syserror ());
   FFI_RETURN_STRING (sc, name);
@@ -420,8 +419,8 @@ unlink_recursively (const char *name)
               || strcmp (dent->d_name, "..") == 0)
             continue;
 
-          child = xtryasprintf ("%s/%s", name, dent->d_name);
-          if (child == NULL)
+          child = gpgrt_bsprintf ("%s/%s", name, dent->d_name);
+          if (!child)
             {
               err = gpg_error_from_syserror ();
               goto leave;
@@ -479,7 +478,7 @@ do_getcwd (scheme *sc, pointer args)
   pointer result;
   char *cwd;
   FFI_ARGS_DONE_OR_RETURN (sc, args);
-  cwd = gnupg_getcwd ();
+  cwd = gpgrt_getcwd ();
   if (cwd == NULL)
     FFI_RETURN_ERR (sc, gpg_error_from_syserror ());
   result = sc->vptr->mk_string (sc, cwd);
@@ -491,13 +490,15 @@ static pointer
 do_mkdir (scheme *sc, pointer args)
 {
   FFI_PROLOG ();
+  gpg_err_code_t ec;
   char *name;
   char *mode;
   FFI_ARG_OR_RETURN (sc, char *, name, string, args);
   FFI_ARG_OR_RETURN (sc, char *, mode, string, args);
   FFI_ARGS_DONE_OR_RETURN (sc, args);
-  if (gnupg_mkdir (name, mode) == -1)
-    FFI_RETURN_ERR (sc, gpg_error_from_syserror ());
+  ec = gpgrt_mkdir (name, mode);
+  if (ec)
+    FFI_RETURN_ERR (sc, ec);
   FFI_RETURN (sc);
 }
 
@@ -517,9 +518,10 @@ static pointer
 do_get_isotime (scheme *sc, pointer args)
 {
   FFI_PROLOG ();
-  gnupg_isotime_t timebuf;
+  /* gnupg_isotime_t timebuf; */
+  char timebuf[15];
   FFI_ARGS_DONE_OR_RETURN (sc, args);
-  gnupg_get_isotime (timebuf);
+  *timebuf = 0; /*gnupg_get_isotime (timebuf);*/
   FFI_RETURN_STRING (sc, timebuf);
 }
 
@@ -527,8 +529,12 @@ static pointer
 do_get_time (scheme *sc, pointer args)
 {
   FFI_PROLOG ();
+  time_t current;
   FFI_ARGS_DONE_OR_RETURN (sc, args);
-  FFI_RETURN_INT (sc, gnupg_get_time ());
+  current = time (NULL);
+  if (current == (time_t)(-1))
+    gpgrt_log_fatal ("time() failed\n");
+  FFI_RETURN_INT (sc, current);
 }
 
 static pointer
@@ -781,7 +787,7 @@ do_spawn_process (scheme *sc, pointer args)
       fprintf (stderr, "\n");
     }
 
-  err = gnupg_spawn_process (argv[0], (const char **) &argv[1],
+  err = gpgrt_spawn_process (argv[0], (const char **) &argv[1],
                              NULL,
                              NULL,
                              flags,
@@ -833,7 +839,7 @@ do_spawn_process_fd (scheme *sc, pointer args)
       fprintf (stderr, "\n");
     }
 
-  err = gnupg_spawn_process_fd (argv[0], (const char **) &argv[1],
+  err = gpgrt_spawn_process_fd (argv[0], (const char **) &argv[1],
                                 infd, outfd, errfd, &pid);
   xfree (argv);
   FFI_RETURN_INT (sc, pid);
@@ -853,7 +859,7 @@ do_wait_process (scheme *sc, pointer args)
   FFI_ARG_OR_RETURN (sc, pid_t, pid, number, args);
   FFI_ARG_OR_RETURN (sc, int, hang, bool, args);
   FFI_ARGS_DONE_OR_RETURN (sc, args);
-  err = gnupg_wait_process (name, pid, hang, &retcode);
+  err = gpgrt_wait_process (name, pid, hang, &retcode);
   if (err == GPG_ERR_GENERAL)
     err = 0;	/* Let the return code speak for itself.  */
 
@@ -910,7 +916,7 @@ do_wait_processes (scheme *sc, pointer args)
       FFI_RETURN_ERR (sc, gpg_error_from_syserror ());
     }
 
-  err = gnupg_wait_processes ((const char **) names, pids, count, hang,
+  err = gpgrt_wait_processes ((const char **) names, pids, count, hang,
                               retcodes);
   if (err == GPG_ERR_GENERAL)
     err = 0;	/* Let the return codes speak.  */
@@ -937,7 +943,7 @@ do_pipe (scheme *sc, pointer args)
   FFI_PROLOG ();
   int filedes[2];
   FFI_ARGS_DONE_OR_RETURN (sc, args);
-  err = gnupg_create_pipe (filedes);
+  err = gpgrt_create_pipe (filedes);
 #define IMC(A, B)                                                       \
   _cons (sc, sc->vptr->mk_integer (sc, (unsigned long) (A)), (B), 1)
   FFI_RETURN_POINTER (sc, IMC (filedes[0],
@@ -951,7 +957,7 @@ do_inbound_pipe (scheme *sc, pointer args)
   FFI_PROLOG ();
   int filedes[2];
   FFI_ARGS_DONE_OR_RETURN (sc, args);
-  err = gnupg_create_inbound_pipe (filedes, NULL, 0);
+  err = gpgrt_create_inbound_pipe (filedes, NULL, 0);
 #define IMC(A, B)                                                       \
   _cons (sc, sc->vptr->mk_integer (sc, (unsigned long) (A)), (B), 1)
   FFI_RETURN_POINTER (sc, IMC (filedes[0],
@@ -965,7 +971,7 @@ do_outbound_pipe (scheme *sc, pointer args)
   FFI_PROLOG ();
   int filedes[2];
   FFI_ARGS_DONE_OR_RETURN (sc, args);
-  err = gnupg_create_outbound_pipe (filedes, NULL, 0);
+  err = gpgrt_create_outbound_pipe (filedes, NULL, 0);
 #define IMC(A, B)                                                       \
   _cons (sc, sc->vptr->mk_integer (sc, (unsigned long) (A)), (B), 1)
   FFI_RETURN_POINTER (sc, IMC (filedes[0],

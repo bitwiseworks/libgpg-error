@@ -84,12 +84,15 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <stddef.h>
-#include <assert.h>
 #ifdef HAVE_W32_SYSTEM
 # ifdef HAVE_WINSOCK2_H
 #  include <winsock2.h>
 # endif
 # include <windows.h>
+#else
+# ifdef HAVE_POLL_H
+#  include <poll.h>
+# endif
 #endif
 
 /* Enable tracing.  The value is the module name to be printed.  */
@@ -151,11 +154,7 @@ int _setmode (int handle, int mode);
 # define _set_errno(a)  do { errno = (a); } while (0)
 #endif
 
-#ifdef HAVE_W32_SYSTEM
-# define IS_INVALID_FD(a)    ((void*)(a) == (void*)(-1)) /* ?? FIXME.  */
-#else
-# define IS_INVALID_FD(a)    ((a) == -1)
-#endif
+#define IS_INVALID_FD(a)    ((a) == -1)
 
 /* Calculate array dimension.  */
 #ifndef DIM
@@ -201,14 +200,6 @@ GPGRT_LOCK_DEFINE (estream_list_lock);
 
 
 /*
- * Functions called before and after blocking syscalls.
- * gpgrt_set_syscall_clamp is used to set them.
- */
-static void (*pre_syscall_func)(void);
-static void (*post_syscall_func)(void);
-
-
-/*
  * Error code replacements.
  */
 #ifndef EOPNOTSUPP
@@ -247,7 +238,8 @@ mem_free (void *p)
 
 /*
  * A Windows helper function to map a W32 API error code to a standard
- * system error code.
+ * system error code.  That actually belong into sysutils but to allow
+ * standalone use of estream we keep it here.
  */
 #ifdef HAVE_W32_SYSTEM
 static int
@@ -265,11 +257,19 @@ map_w32_to_errno (DWORD w32_err)
       return ENOENT;
 
     case ERROR_ACCESS_DENIED:
-      return EPERM;
+      return EPERM;  /* ReactOS uses EACCES ("Permission denied") and
+                      * is likely right because they used an
+                      * undocumented function to associate the error
+                      * codes.  However we have always used EPERM
+                      * ("Operation not permitted", e.g. function is
+                      * required to be called by root) and we better
+                      * stick to that to avoid surprising bugs. */
 
     case ERROR_INVALID_HANDLE:
+      return EBADF;
+
     case ERROR_INVALID_BLOCK:
-      return EINVAL;
+      return ENOMEM;
 
     case ERROR_NOT_ENOUGH_MEMORY:
       return ENOMEM;
@@ -277,10 +277,90 @@ map_w32_to_errno (DWORD w32_err)
     case ERROR_NO_DATA:
       return EPIPE;
 
+    case ERROR_ALREADY_EXISTS:
+      return EEXIST;
+
+      /* This mapping has been taken from reactOS.  */
+    case ERROR_TOO_MANY_OPEN_FILES: return EMFILE;
+    case ERROR_ARENA_TRASHED: return ENOMEM;
+    case ERROR_BAD_ENVIRONMENT: return E2BIG;
+    case ERROR_BAD_FORMAT: return ENOEXEC;
+    case ERROR_INVALID_DRIVE: return ENOENT;
+    case ERROR_CURRENT_DIRECTORY: return EACCES;
+    case ERROR_NOT_SAME_DEVICE: return EXDEV;
+    case ERROR_NO_MORE_FILES: return ENOENT;
+    case ERROR_WRITE_PROTECT: return EACCES;
+    case ERROR_BAD_UNIT: return EACCES;
+    case ERROR_NOT_READY: return EACCES;
+    case ERROR_BAD_COMMAND: return EACCES;
+    case ERROR_CRC: return EACCES;
+    case ERROR_BAD_LENGTH: return EACCES;
+    case ERROR_SEEK: return EACCES;
+    case ERROR_NOT_DOS_DISK: return EACCES;
+    case ERROR_SECTOR_NOT_FOUND: return EACCES;
+    case ERROR_OUT_OF_PAPER: return EACCES;
+    case ERROR_WRITE_FAULT: return EACCES;
+    case ERROR_READ_FAULT: return EACCES;
+    case ERROR_GEN_FAILURE: return EACCES;
+    case ERROR_SHARING_VIOLATION: return EACCES;
+    case ERROR_LOCK_VIOLATION: return EACCES;
+    case ERROR_WRONG_DISK: return EACCES;
+    case ERROR_SHARING_BUFFER_EXCEEDED: return EACCES;
+    case ERROR_BAD_NETPATH: return ENOENT;
+    case ERROR_NETWORK_ACCESS_DENIED: return EACCES;
+    case ERROR_BAD_NET_NAME: return ENOENT;
+    case ERROR_FILE_EXISTS: return EEXIST;
+    case ERROR_CANNOT_MAKE: return EACCES;
+    case ERROR_FAIL_I24: return EACCES;
+    case ERROR_NO_PROC_SLOTS: return EAGAIN;
+    case ERROR_DRIVE_LOCKED: return EACCES;
+    case ERROR_BROKEN_PIPE: return EPIPE;
+    case ERROR_DISK_FULL: return ENOSPC;
+    case ERROR_INVALID_TARGET_HANDLE: return EBADF;
+    case ERROR_WAIT_NO_CHILDREN: return ECHILD;
+    case ERROR_CHILD_NOT_COMPLETE: return ECHILD;
+    case ERROR_DIRECT_ACCESS_HANDLE: return EBADF;
+    case ERROR_SEEK_ON_DEVICE: return EACCES;
+    case ERROR_DIR_NOT_EMPTY: return ENOTEMPTY;
+    case ERROR_NOT_LOCKED: return EACCES;
+    case ERROR_BAD_PATHNAME: return ENOENT;
+    case ERROR_MAX_THRDS_REACHED: return EAGAIN;
+    case ERROR_LOCK_FAILED: return EACCES;
+    case ERROR_INVALID_STARTING_CODESEG: return ENOEXEC;
+    case ERROR_INVALID_STACKSEG: return ENOEXEC;
+    case ERROR_INVALID_MODULETYPE: return ENOEXEC;
+    case ERROR_INVALID_EXE_SIGNATURE: return ENOEXEC;
+    case ERROR_EXE_MARKED_INVALID: return ENOEXEC;
+    case ERROR_BAD_EXE_FORMAT: return ENOEXEC;
+    case ERROR_ITERATED_DATA_EXCEEDS_64k: return ENOEXEC;
+    case ERROR_INVALID_MINALLOCSIZE: return ENOEXEC;
+    case ERROR_DYNLINK_FROM_INVALID_RING: return ENOEXEC;
+    case ERROR_IOPL_NOT_ENABLED: return ENOEXEC;
+    case ERROR_INVALID_SEGDPL: return ENOEXEC;
+    case ERROR_AUTODATASEG_EXCEEDS_64k: return ENOEXEC;
+    case ERROR_RING2SEG_MUST_BE_MOVABLE: return ENOEXEC;
+    case ERROR_RELOC_CHAIN_XEEDS_SEGLIM: return ENOEXEC;
+    case ERROR_INFLOOP_IN_RELOC_CHAIN: return ENOEXEC;
+    case ERROR_FILENAME_EXCED_RANGE: return ENOENT;
+    case ERROR_NESTING_NOT_ALLOWED: return EAGAIN;
+    case ERROR_NOT_ENOUGH_QUOTA: return ENOMEM;
+
     default:
       return EIO;
     }
 }
+
+/* Wrapper to be used by other modules to set ERRNO from the Windows
+ * error.  EC may be -1 to get the last error.  */
+void
+_gpgrt_w32_set_errno (int ec)
+{
+  if (ec == -1)
+    ec = GetLastError ();
+  _set_errno (map_w32_to_errno (ec));
+}
+
+
 #endif /*HAVE_W32_SYSTEM*/
 
 /*
@@ -470,18 +550,13 @@ do_list_remove (estream_t stream, int with_locked_list)
     else
       item_prev = item;
 
-  if (item_prev)
+  if (item)
     {
-      item_prev->next = item->next;
+      if (item_prev)
+        item_prev->next = item->next;
+      else
+        estream_list = item->next;
       mem_free (item);
-    }
-  else
-    {
-      if (item)
-        {
-          estream_list = item->next;
-          mem_free (item);
-        }
     }
 
   if (!with_locked_list)
@@ -491,7 +566,7 @@ do_list_remove (estream_t stream, int with_locked_list)
 
 
 /*
- * The atexit handler for this estream module.
+ * The atexit handler for the entire gpgrt.
  */
 static void
 do_deinit (void)
@@ -508,10 +583,7 @@ do_deinit (void)
      we keep the list and let the OS clean it up at process end.  */
 
   /* Reset the syscall clamp.  */
-  pre_syscall_func = NULL;
-  post_syscall_func = NULL;
-  _gpgrt_thread_set_syscall_clamp (NULL, NULL);
-  _gpgrt_lock_set_lock_clamp (NULL, NULL);
+  _gpgrt_set_syscall_clamp (NULL, NULL);
 }
 
 
@@ -530,37 +602,6 @@ _gpgrt_estream_init (void)
     }
   return 0;
 }
-
-/*
- * Register the syscall clamp.  These two functions are called
- * immediately before and after a possible blocking system call.  This
- * should be used before any I/O happens.  The function is commonly
- * used with the nPth library:
- *
- *    gpgrt_set_syscall_clamp (npth_unprotect, npth_protect);
- *
- * These functions may not modify ERRNO.
- */
-void
-_gpgrt_set_syscall_clamp (void (*pre)(void), void (*post)(void))
-{
-  pre_syscall_func = pre;
-  post_syscall_func = post;
-  _gpgrt_thread_set_syscall_clamp (pre, post);
-  _gpgrt_lock_set_lock_clamp (pre, post);
-}
-
-/*
- * Return the current sycall clamp functions.  This can be used by
- * other libraries which have blocking functions.
- */
-void
-_gpgrt_get_syscall_clamp (void (**r_pre)(void), void (**r_post)(void))
-{
-  *r_pre  = pre_syscall_func;
-  *r_post = post_syscall_func;
-}
-
 
 
 /*
@@ -695,7 +736,7 @@ func_mem_write (void *cookie, const void *buffer, size_t size)
       mem_cookie->offset = mem_cookie->data_len;
     }
 
-  assert (mem_cookie->memory_size >= mem_cookie->offset);
+  gpgrt_assert (mem_cookie->memory_size >= mem_cookie->offset);
   nleft = mem_cookie->memory_size - mem_cookie->offset;
 
   /* If we are not allowed to grow the buffer, limit the size to the
@@ -740,7 +781,7 @@ func_mem_write (void *cookie, const void *buffer, size_t size)
           return -1;
         }
 
-      assert (mem_cookie->func_realloc);
+      gpgrt_assert (mem_cookie->func_realloc);
       newbuf = mem_cookie->func_realloc (mem_cookie->memory, newsize);
       if (!newbuf)
         return -1;
@@ -748,10 +789,10 @@ func_mem_write (void *cookie, const void *buffer, size_t size)
       mem_cookie->memory = newbuf;
       mem_cookie->memory_size = newsize;
 
-      assert (mem_cookie->memory_size >= mem_cookie->offset);
+      gpgrt_assert (mem_cookie->memory_size >= mem_cookie->offset);
       nleft = mem_cookie->memory_size - mem_cookie->offset;
 
-      assert (size <= nleft);
+      gpgrt_assert (size <= nleft);
     }
 
   memcpy (mem_cookie->memory + mem_cookie->offset, buffer, size);
@@ -818,7 +859,7 @@ func_mem_seek (void *cookie, gpgrt_off_t *offset, int whence)
           return -1;
         }
 
-      assert (mem_cookie->func_realloc);
+      gpgrt_assert (mem_cookie->func_realloc);
       newbuf = mem_cookie->func_realloc (mem_cookie->memory, newsize);
       if (!newbuf)
         return -1;
@@ -861,6 +902,14 @@ func_mem_ioctl (void *cookie, int cmd, void *ptr, size_t *len)
       mem_cookie->memory_size = 0;
       mem_cookie->offset = 0;
       ret = 0;
+    }
+  else if (cmd == COOKIE_IOCTL_TRUNCATE)
+    {
+      gpgrt_off_t length = *(gpgrt_off_t *)ptr;
+
+      ret = func_mem_seek (cookie, &length, SEEK_SET);
+      if (ret != -1)
+        mem_cookie->data_len = mem_cookie->offset;
     }
   else
     {
@@ -971,15 +1020,13 @@ func_fd_read (void *cookie, void *buffer, size_t size)
     }
   else
     {
-      if (pre_syscall_func)
-        pre_syscall_func ();
+      _gpgrt_pre_syscall ();
       do
         {
           bytes_read = read (file_cookie->fd, buffer, size);
         }
       while (bytes_read == -1 && errno == EINTR);
-      if (post_syscall_func)
-        post_syscall_func ();
+      _gpgrt_post_syscall ();
     }
 
   trace_errno (bytes_read == -1, ("leave: bytes_read=%d", (int)bytes_read));
@@ -1005,15 +1052,13 @@ func_fd_write (void *cookie, const void *buffer, size_t size)
     }
   else if (buffer)
     {
-      if (pre_syscall_func)
-        pre_syscall_func ();
+      _gpgrt_pre_syscall ();
       do
         {
           bytes_written = write (file_cookie->fd, buffer, size);
         }
       while (bytes_written == -1 && errno == EINTR);
-      if (post_syscall_func)
-        post_syscall_func ();
+      _gpgrt_post_syscall ();
     }
   else
     bytes_written = size; /* Note that for a flush SIZE should be 0.  */
@@ -1041,11 +1086,9 @@ func_fd_seek (void *cookie, gpgrt_off_t *offset, int whence)
     }
   else
     {
-      if (pre_syscall_func)
-        pre_syscall_func ();
+      _gpgrt_pre_syscall ();
       offset_new = lseek (file_cookie->fd, *offset, whence);
-      if (post_syscall_func)
-        post_syscall_func ();
+      _gpgrt_post_syscall ();
       if (offset_new == -1)
         err = -1;
       else
@@ -1216,8 +1259,8 @@ func_w32_read (void *cookie, void *buffer, size_t size)
     }
   else
     {
-      if (pre_syscall_func && !w32_cookie->no_syscall_clamp)
-        pre_syscall_func ();
+      if (!w32_cookie->no_syscall_clamp)
+        _gpgrt_pre_syscall ();
       do
         {
           DWORD nread, ec;
@@ -1239,8 +1282,8 @@ func_w32_read (void *cookie, void *buffer, size_t size)
             bytes_read = (int)nread;
         }
       while (bytes_read == -1 && errno == EINTR);
-      if (post_syscall_func && !w32_cookie->no_syscall_clamp)
-        post_syscall_func ();
+      if (!w32_cookie->no_syscall_clamp)
+        _gpgrt_post_syscall ();
     }
 
   trace_errno (bytes_read==-1,("leave: bytes_read=%d", (int)bytes_read));
@@ -1269,8 +1312,8 @@ func_w32_write (void *cookie, const void *buffer, size_t size)
     }
   else if (buffer)
     {
-      if (pre_syscall_func && !w32_cookie->no_syscall_clamp)
-        pre_syscall_func ();
+      if (!w32_cookie->no_syscall_clamp)
+        _gpgrt_pre_syscall ();
       do
         {
           DWORD nwritten;
@@ -1287,8 +1330,8 @@ func_w32_write (void *cookie, const void *buffer, size_t size)
 	    bytes_written = (int)nwritten;
         }
       while (bytes_written == -1 && errno == EINTR);
-      if (post_syscall_func && !w32_cookie->no_syscall_clamp)
-        post_syscall_func ();
+      if (!w32_cookie->no_syscall_clamp)
+        _gpgrt_post_syscall ();
     }
   else
     bytes_written = size; /* Note that for a flush SIZE should be 0.  */
@@ -1338,17 +1381,16 @@ func_w32_seek (void *cookie, gpgrt_off_t *offset, int whence)
 #ifdef HAVE_W32CE_SYSTEM
 # warning need to use SetFilePointer
 #else
-  if (pre_syscall_func && !w32_cookie->no_syscall_clamp)
-    pre_syscall_func ();
+  if (!w32_cookie->no_syscall_clamp)
+    _gpgrt_pre_syscall ();
   if (!SetFilePointerEx (w32_cookie->hd, distance, &newoff, method))
     {
       _set_errno (map_w32_to_errno (GetLastError ()));
-      if (post_syscall_func)
-        post_syscall_func ();
+      _gpgrt_post_syscall ();
       return -1;
     }
-  if (post_syscall_func && !w32_cookie->no_syscall_clamp)
-    post_syscall_func ();
+  if (!w32_cookie->no_syscall_clamp)
+    _gpgrt_post_syscall ();
 #endif
   /* Note that gpgrt_off_t is always 64 bit.  */
   *offset = (gpgrt_off_t)newoff.QuadPart;
@@ -1473,11 +1515,9 @@ func_fp_read (void *cookie, void *buffer, size_t size)
 
   if (file_cookie->fp)
     {
-      if (pre_syscall_func)
-        pre_syscall_func ();
+      _gpgrt_pre_syscall ();
       bytes_read = fread (buffer, 1, size, file_cookie->fp);
-      if (post_syscall_func)
-        post_syscall_func ();
+      _gpgrt_post_syscall ();
     }
   else
     bytes_read = 0;
@@ -1498,8 +1538,7 @@ func_fp_write (void *cookie, const void *buffer, size_t size)
 
   if (file_cookie->fp)
     {
-      if (pre_syscall_func)
-        pre_syscall_func ();
+      _gpgrt_pre_syscall ();
       if (buffer)
         {
 #ifdef HAVE_W32_SYSTEM
@@ -1527,8 +1566,7 @@ func_fp_write (void *cookie, const void *buffer, size_t size)
         bytes_written = size;
 
       fflush (file_cookie->fp);
-      if (post_syscall_func)
-        post_syscall_func ();
+      _gpgrt_post_syscall ();
     }
   else
     bytes_written = size; /* Successfully written to the bit bucket.  */
@@ -1554,20 +1592,17 @@ func_fp_seek (void *cookie, gpgrt_off_t *offset, int whence)
       return -1;
     }
 
-  if (pre_syscall_func)
-    pre_syscall_func ();
+  _gpgrt_pre_syscall ();
   if ( fseek (file_cookie->fp, (long int)*offset, whence) )
     {
       /* fprintf (stderr, "\nfseek failed: errno=%d (%s)\n", */
       /*          errno,strerror (errno)); */
-      if (post_syscall_func)
-        post_syscall_func ();
+      _gpgrt_post_syscall ();
       return -1;
     }
 
   offset_new = ftell (file_cookie->fp);
-  if (post_syscall_func)
-    post_syscall_func ();
+  _gpgrt_post_syscall ();
   if (offset_new == -1)
     {
       /* fprintf (stderr, "\nftell failed: errno=%d (%s)\n",  */
@@ -1592,11 +1627,9 @@ func_fp_destroy (void *cookie)
     {
       if (fp_cookie->fp)
         {
-          if (pre_syscall_func)
-            pre_syscall_func ();
+          _gpgrt_pre_syscall ();
           fflush (fp_cookie->fp);
-          if (post_syscall_func)
-            post_syscall_func ();
+          _gpgrt_post_syscall ();
           err = fp_cookie->no_close? 0 : fclose (fp_cookie->fp);
         }
       else
@@ -1634,6 +1667,18 @@ static struct cookie_io_functions_s estream_functions_fp =
  * operations ares handled by file descriptor based I/O.
  */
 
+#ifdef HAVE_W32_SYSTEM
+static int
+any8bitchar (const char *string)
+{
+  if (string)
+    for ( ; *string; string++)
+      if ((*string & 0x80))
+        return 1;
+  return 0;
+}
+#endif /*HAVE_W32_SYSTEM*/
+
 /* Create function for objects identified by a file name.  */
 static int
 func_file_create (void **cookie, int *filedes,
@@ -1652,7 +1697,25 @@ func_file_create (void **cookie, int *filedes,
       goto out;
     }
 
+#ifdef HAVE_W32_SYSTEM
+  if (any8bitchar (path))
+    {
+      wchar_t *wpath;
+
+      wpath = _gpgrt_utf8_to_wchar (path);
+      if (!wpath)
+        fd = -1;
+      else
+        {
+          fd = _wopen (wpath, modeflags, cmode);
+          _gpgrt_free_wchar (wpath);
+        }
+    }
+  else  /* Avoid unnecessary conversion.  */
+    fd = open (path, modeflags, cmode);
+#else
   fd = open (path, modeflags, cmode);
+#endif
   if (fd == -1)
     {
       err = -1;
@@ -1699,7 +1762,7 @@ func_file_create (void **cookie, int *filedes,
  *    allowed to leave out trailing dashes.  If this keyword parameter
  *    is not given the default mode for creating files is "-rw-rw-r--"
  *    (664).  Note that the system still applies the current umask to
- *    the mode when crating a file.  Example:
+ *    the mode when creating a file.  Example:
  *
  *       "wb,mode=-rw-r--"
  *
@@ -1935,7 +1998,7 @@ flush_stream (estream_t stream)
   gpgrt_cookie_write_function_t func_write = stream->intern->func_write;
   int err;
 
-  assert (stream->flags.writing);
+  gpgrt_assert (stream->flags.writing);
 
   if (stream->data_offset)
     {
@@ -1988,13 +2051,14 @@ flush_stream (estream_t stream)
 	  stream->intern->offset += stream->data_offset;
 	  stream->data_offset = 0;
 	  stream->data_flushed = 0;
-
-	  /* Propagate flush event.  */
-	  (*func_write) (stream->intern->cookie, NULL, 0);
 	}
     }
   else
     err = 0;
+
+  /* Always propagate flush event in case gpgrt_fflush was called
+   * explictly to do flush buffers in caller's cookie functions.  */
+  (*func_write) (stream->intern->cookie, NULL, 0);
 
  out:
 
@@ -2015,7 +2079,7 @@ flush_stream (estream_t stream)
 static void
 es_empty (estream_t stream)
 {
-  assert (!stream->flags.writing);
+  gpgrt_assert (!stream->flags.writing);
   stream->data_len = 0;
   stream->data_offset = 0;
   stream->unread_data_len = 0;
@@ -2222,10 +2286,11 @@ create_stream (estream_t *r_stream, void *cookie, es_syshd_t *syshd,
 
 
 /*
- * Deinitialize a stream object and destroy it.
+ * Deinitialize a stream object and destroy it.  With CANCEL_MODE set
+ * try to cancel as much as possible (see _gpgrt_fcancel).
  */
 static int
-do_close (estream_t stream, int with_locked_list)
+do_close (estream_t stream, int cancel_mode, int with_locked_list)
 {
   int err;
 
@@ -2234,6 +2299,11 @@ do_close (estream_t stream, int with_locked_list)
   if (stream)
     {
       do_list_remove (stream, with_locked_list);
+      if (cancel_mode)
+        {
+          stream->flags.writing = 0;
+          es_empty (stream);
+        }
       while (stream->intern->onclose)
         {
           notify_list_t tmp = stream->intern->onclose->next;
@@ -2998,7 +3068,7 @@ doreadline (estream_t _GPGRT__RESTRICT stream, size_t max_length,
  out:
 
   if (line_stream)
-    do_close (line_stream, 0);
+    do_close (line_stream, 0, 0);
   else if (line_stream_cookie)
     func_mem_destroy (line_stream_cookie);
 
@@ -3031,12 +3101,13 @@ print_writer (void *outfncarg, const char *buf, size_t buflen)
 /* The core of our printf function.  This is called in locked state. */
 static int
 do_print_stream (estream_t _GPGRT__RESTRICT stream,
+                 gpgrt_string_filter_t sf, void *sfvalue,
                  const char *_GPGRT__RESTRICT format, va_list ap)
 {
   int rc;
 
   stream->intern->print_ntotal = 0;
-  rc = _gpgrt_estream_format (print_writer, stream, format, ap);
+  rc = _gpgrt_estream_format (print_writer, stream, sf, sfvalue, format, ap);
   if (rc)
     return -1;
   return (int)stream->intern->print_ntotal;
@@ -3303,7 +3374,7 @@ _gpgrt_fopencookie (void *_GPGRT__RESTRICT cookie,
   estream_t stream;
   int err;
   es_syshd_t syshd;
-  struct cookie_io_functions_s io_functions = { functions, NULL, };
+  struct cookie_io_functions_s io_functions = { functions, NULL };
 
   stream = NULL;
   modeflags = 0;
@@ -3604,7 +3675,7 @@ _gpgrt__get_std_stream (int fd)
             {
               fprintf (stderr, "fatal: error creating a dummy estream"
                        " for %d: %s\n", fd, strerror (errno));
-              abort();
+              _gpgrt_abort();
             }
         }
 
@@ -3671,7 +3742,7 @@ _gpgrt_freopen (const char *_GPGRT__RESTRICT path,
 	  if (create_called)
 	    func_fd_destroy (cookie);
 
-	  do_close (stream, 0);
+	  do_close (stream, 0, 0);
 	  stream = NULL;
 	}
       else
@@ -3686,7 +3757,7 @@ _gpgrt_freopen (const char *_GPGRT__RESTRICT path,
       /* FIXME?  We don't support re-opening at the moment.  */
       _set_errno (EINVAL);
       deinit_stream_obj (stream);
-      do_close (stream, 0);
+      do_close (stream, 0, 0);
       stream = NULL;
     }
 
@@ -3699,7 +3770,22 @@ _gpgrt_fclose (estream_t stream)
 {
   int err;
 
-  err = do_close (stream, 0);
+  err = do_close (stream, 0, 0);
+
+  return err;
+}
+
+
+/* gpgrt_fcancel does the same as gpgrt_fclose but tries to avoid
+ * flushing out any data still held in internal buffers.  It may or
+ * may not remove a new file created for that stream by the open
+ * function.  */
+int
+_gpgrt_fcancel (estream_t stream)
+{
+  int err;
+
+  err = do_close (stream, 1, 0);
 
   return err;
 }
@@ -3752,7 +3838,7 @@ _gpgrt_fclose_snatch (estream_t stream, void **r_buffer, size_t *r_buflen)
         *r_buflen = buflen;
     }
 
-  err = do_close (stream, 0);
+  err = do_close (stream, 0, 0);
 
  leave:
   if (err && r_buffer)
@@ -3780,8 +3866,10 @@ _gpgrt_fclose_snatch (estream_t stream, void **r_buffer, size_t *r_buflen)
 
    FIXME: Unregister is not thread safe.
 
-   The notification will be called right before the stream is closed.
-   It may not call any estream function for STREAM, neither direct nor
+   The notification will be called right before the stream is
+   closed. If gpgrt_fcancel is used, the cancellation of internal
+   buffers is done before the notifications.  The notification handler
+   may not call any estream function for STREAM, neither direct nor
    indirectly. */
 int
 _gpgrt_onclose (estream_t stream, int mode,
@@ -4084,6 +4172,29 @@ _gpgrt_rewind (estream_t stream)
 
 
 int
+_gpgrt_ftruncate (estream_t stream, gpgrt_off_t length)
+{
+  cookie_ioctl_function_t func_ioctl;
+  int ret;
+
+  lock_stream (stream);
+  func_ioctl = stream->intern->func_ioctl;
+  if (!func_ioctl)
+    {
+      _set_errno (EOPNOTSUPP);
+      ret = -1;
+    }
+  else
+    {
+      ret = func_ioctl (stream->intern->cookie, COOKIE_IOCTL_TRUNCATE,
+                        &length, NULL);
+    }
+  unlock_stream (stream);
+  return ret;
+}
+
+
+int
 _gpgrt__getc_underflow (estream_t stream)
 {
   int err;
@@ -4358,7 +4469,7 @@ _gpgrt_getline (char *_GPGRT__RESTRICT *_GPGRT__RESTRICT lineptr,
 
    If a line has been truncated, the file pointer is moved forward to
    the end of the line so that the next read starts with the next
-   line.  Note that MAX_LENGTH must be re-initialzied in this case.
+   line.  Note that MAX_LENGTH must be re-initialized in this case.
 
    The caller initially needs to provide the address of a variable,
    initialized to NULL, at ADDR_OF_BUFFER and don't change this value
@@ -4470,22 +4581,24 @@ _gpgrt_read_line (estream_t stream,
 
 int
 _gpgrt_vfprintf_unlocked (estream_t _GPGRT__RESTRICT stream,
+                          gpgrt_string_filter_t sf, void *sfvalue,
                           const char *_GPGRT__RESTRICT format,
                           va_list ap)
 {
-  return do_print_stream (stream, format, ap);
+  return do_print_stream (stream, sf, sfvalue, format, ap);
 }
 
 
 int
 _gpgrt_vfprintf (estream_t _GPGRT__RESTRICT stream,
+                 gpgrt_string_filter_t sf, void *sfvalue,
                  const char *_GPGRT__RESTRICT format,
                  va_list ap)
 {
   int ret;
 
   lock_stream (stream);
-  ret = do_print_stream (stream, format, ap);
+  ret = do_print_stream (stream, sf, sfvalue, format, ap);
   unlock_stream (stream);
 
   return ret;
@@ -4500,7 +4613,7 @@ _gpgrt_fprintf_unlocked (estream_t _GPGRT__RESTRICT stream,
 
   va_list ap;
   va_start (ap, format);
-  ret = do_print_stream (stream, format, ap);
+  ret = do_print_stream (stream, NULL, NULL, format, ap);
   va_end (ap);
 
   return ret;
@@ -4516,7 +4629,7 @@ _gpgrt_fprintf (estream_t _GPGRT__RESTRICT stream,
   va_list ap;
   va_start (ap, format);
   lock_stream (stream);
-  ret = do_print_stream (stream, format, ap);
+  ret = do_print_stream (stream, NULL, NULL, format, ap);
   unlock_stream (stream);
   va_end (ap);
 
@@ -4588,7 +4701,7 @@ tmpfd (void)
 #ifdef HAVE_W32CE_SYSTEM
           int fd = (int)file;
 #else
-          int fd = _open_osfhandle ((long)file, 0);
+          int fd = _open_osfhandle ((intptr_t)file, 0);
           if (fd == -1)
             {
               CloseHandle (file);
@@ -4806,9 +4919,14 @@ _gpgrt_poll (gpgrt_poll_t *fds, unsigned int nfds, int timeout)
   int count = 0;
   int idx;
 #ifndef HAVE_W32_SYSTEM
+# ifdef HAVE_POLL_H
+  struct pollfd *poll_fds = NULL;
+  nfds_t poll_nfds;
+# else
   fd_set readfds, writefds, exceptfds;
   int any_readfd, any_writefd, any_exceptfd;
   int max_fd;
+#endif
   int fd, ret, any;
 #endif /*HAVE_W32_SYSTEM*/
 
@@ -4857,13 +4975,50 @@ _gpgrt_poll (gpgrt_poll_t *fds, unsigned int nfds, int timeout)
       /* FIXME */
     }
 
+  if (count)
+    goto leave;
+
   /* Now do the real select.  */
 #ifdef HAVE_W32_SYSTEM
 
+  _gpgrt_pre_syscall ();
   count = _gpgrt_w32_poll (fds, nfds, timeout);
+  _gpgrt_post_syscall ();
 
 #else /*!HAVE_W32_SYSTEM*/
+# ifdef HAVE_POLL_H
+  poll_fds = xtrymalloc (sizeof (*poll_fds)*nfds);
+  if (!poll_fds)
+    {
+      count = -1;
+      goto leave;
+    }
+  poll_nfds = 0;
+  for (item = fds, idx = 0; idx < nfds; item++, idx++)
+    {
+      if (item->ignore)
+        continue;
+      fd = _gpgrt_fileno (item->stream);
+      if (fd == -1)
+        continue;  /* Stream does not support polling.  */
 
+      if (item->want_read || item->want_write || item->want_oob)
+        {
+          poll_fds[poll_nfds].fd = fd;
+          poll_fds[poll_nfds].events = ((item->want_read ? POLLIN : 0)
+                                        |(item->want_write ? POLLOUT : 0)
+                                        |(item->want_oob ? POLLPRI : 0));
+          poll_fds[poll_nfds].revents = 0;
+          poll_nfds++;
+        }
+    }
+
+  _gpgrt_pre_syscall ();
+  do
+    ret = poll (poll_fds, poll_nfds, timeout);
+  while (ret == -1 && (errno == EINTR || errno == EAGAIN));
+  _gpgrt_post_syscall ();
+# else /* !HAVE_POLL_H */
   any_readfd = any_writefd = any_exceptfd = 0;
   max_fd = 0;
   for (item = fds, idx = 0; idx < nfds; item++, idx++)
@@ -4909,8 +5064,7 @@ _gpgrt_poll (gpgrt_poll_t *fds, unsigned int nfds, int timeout)
         }
     }
 
-  if (pre_syscall_func)
-    pre_syscall_func ();
+  _gpgrt_pre_syscall ();
   do
     {
       struct timeval timeout_val;
@@ -4924,12 +5078,16 @@ _gpgrt_poll (gpgrt_poll_t *fds, unsigned int nfds, int timeout)
                     timeout == -1 ? NULL : &timeout_val);
     }
   while (ret == -1 && errno == EINTR);
-  if (post_syscall_func)
-    post_syscall_func ();
+  _gpgrt_post_syscall ();
+# endif
 
   if (ret == -1)
     {
+# ifdef HAVE_POLL_H
+      trace_errno (1, ("poll failed: "));
+# else
       trace_errno (1, ("select failed: "));
+# endif
       count = -1;
       goto leave;
     }
@@ -4941,6 +5099,48 @@ _gpgrt_poll (gpgrt_poll_t *fds, unsigned int nfds, int timeout)
       goto leave;
     }
 
+# ifdef HAVE_POLL_H
+  poll_nfds = 0;
+  for (item = fds, idx = 0; idx < nfds; item++, idx++)
+    {
+      if (item->ignore)
+        continue;
+      fd = _gpgrt_fileno (item->stream);
+      if (fd == -1)
+        {
+          item->got_err = 1;  /* Stream does not support polling.  */
+          count++;
+          continue;
+        }
+
+      any = 0;
+      if (item->stream->intern->indicators.hup)
+        {
+          item->got_hup = 1;
+          any = 1;
+        }
+      if (item->want_read && (poll_fds[poll_nfds].revents & (POLLIN|POLLHUP)))
+        {
+          item->got_read = 1;
+          any = 1;
+        }
+      if (item->want_write && (poll_fds[poll_nfds].revents & POLLOUT))
+        {
+          item->got_write = 1;
+          any = 1;
+        }
+      if (item->want_oob && (poll_fds[poll_nfds].revents & ~(POLLIN|POLLOUT)))
+        {
+          item->got_oob = 1;
+          any = 1;
+        }
+
+      if (item->want_read || item->want_write || item->want_oob)
+        poll_nfds++;
+      if (any)
+        count++;
+    }
+# else
   for (item = fds, idx = 0; idx < nfds; item++, idx++)
     {
       if (item->ignore)
@@ -4978,9 +5178,15 @@ _gpgrt_poll (gpgrt_poll_t *fds, unsigned int nfds, int timeout)
       if (any)
         count++;
     }
+# endif
 #endif /*!HAVE_W32_SYSTEM*/
 
  leave:
+#ifndef HAVE_W32_SYSTEM
+# ifdef HAVE_POLL_H
+  xfree (poll_fds);
+# endif
+#endif
 #ifdef ENABLE_TRACING
   trace (("leave: count=%d", count));
   if (count > 0)

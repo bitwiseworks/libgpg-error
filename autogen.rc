@@ -1,6 +1,7 @@
 # autogen.sh configuration for libgpg-error                   -*- sh -*-
 
-version_parts=2
+display_name="Libgpg-error"
+patches_to="gnupg-devel@gnupg.org"
 
 case "$myhost:$myhostsub" in
   w32:ce)

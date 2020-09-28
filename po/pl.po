@@ -1,13 +1,13 @@
 # Polish translation for libgpg-error.
 # Copyright (C) 2004, 2005, 2006 Free Software Foundation, Inc.
 # This file is distributed under the same license as the libgpg-error package.
-# Jakub Bogusz <qboosh@pld-linux.org>, 2004-2016.
+# Jakub Bogusz <qboosh@pld-linux.org>, 2004-2019.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: libgpg-error 1.22\n"
+"Project-Id-Version: libgpg-error 1.36\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"PO-Revision-Date: 2016-05-11 18:02+0200\n"
+"PO-Revision-Date: 2019-03-24 09:01+0100\n"
 "Last-Translator: Jakub Bogusz <qboosh@pld-linux.org>\n"
 "Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
 "Language: pl\n"
@@ -727,7 +727,7 @@ msgid "Bad octal character in S-expression"
 msgstr "Błędny znak ósemkowy w S-wyrażeniu"
 
 msgid "All subkeys are expired or revoked"
-msgstr ""
+msgstr "Wszystkie podklucze wygasły lub zostały anulowane"
 
 msgid "Database is corrupted"
 msgstr "Baza danych jest uszkodzona"
@@ -918,104 +918,98 @@ msgstr "Błąd parametru IPC"
 msgid "Unknown IPC inquire"
 msgstr "Nieznane zapytanie IPC"
 
-#, fuzzy
-#| msgid "No crypto engine"
 msgid "Crypto engine too old"
-msgstr "Brak silnika kryptograficznego"
+msgstr "Silnik kryptograficzny zbyt stary"
 
 msgid "Screen or window too small"
-msgstr ""
+msgstr "Ekran lub okno zbyt małe"
 
 msgid "Screen or window too large"
-msgstr ""
+msgstr "Ekran lub okno zbyt duże"
 
 msgid "Required environment variable not set"
-msgstr ""
+msgstr "Wymagana zmienna środowiskowa nie jest ustawiona"
 
-#, fuzzy
-#| msgid "Already exists (LDAP)"
 msgid "User ID already exists"
-msgstr "Już istnieje (LDAP)"
+msgstr "Identyfikator użytkownika już istnieje"
 
-#, fuzzy
-#| msgid "Already exists (LDAP)"
 msgid "Name already exists"
-msgstr "Już istnieje (LDAP)"
+msgstr "Nazwa już istnieje"
 
-#, fuzzy
-#| msgid "Duplicated value"
 msgid "Duplicated name"
-msgstr "Powtórzona wartość"
+msgstr "Powtórzona nazwa"
 
-#, fuzzy
-#| msgid "Certificate too young"
 msgid "Object is too young"
-msgstr "Certyfikat zbyt młody"
+msgstr "Obiekt zbyt młody"
 
-#, fuzzy
-#| msgid "Provided object is too short"
 msgid "Object is too old"
-msgstr "Dostarczony obiekt jest zbyt mały"
+msgstr "Obiekt zbyt stary"
 
-#, fuzzy
-#| msgid "Unknown name"
 msgid "Unknown flag"
-msgstr "Nieznana nazwa"
+msgstr "Nieznana flaga"
 
-#, fuzzy
-#| msgid "Invalid operation code"
 msgid "Invalid execution order"
-msgstr "Niepoprawny kod operacji"
+msgstr "Błędna kolejność wykonywania"
 
 msgid "Already fetched"
-msgstr ""
+msgstr "Już pobrano"
 
 msgid "Try again later"
+msgstr "Proszę spróbować później"
+
+msgid "Wrong name"
+msgstr "Zła nazwa"
+
+msgid "Not authenticated"
+msgstr "Brak uwierzytelnienia"
+
+msgid "Bad authentication"
+msgstr "Niewłaściwe uwierzytelnienie"
+
+#, fuzzy
+#| msgid "No agent running"
+msgid "No Keybox daemon running"
+msgstr "Agent nie uruchomiony"
+
+#, fuzzy
+#| msgid "SmartCard daemon error"
+msgid "Keybox daemon error"
+msgstr "Błąd demona SmartCard"
+
+msgid "Service is not running"
 msgstr ""
 
 #, fuzzy
-#| msgid "No name"
-msgid "Wrong name"
-msgstr "Brak nazwy"
+#| msgid "Keyserver error"
+msgid "Service error"
+msgstr "Błąd serwera kluczy"
 
 msgid "System bug detected"
-msgstr ""
+msgstr "Wykryto błąd systemu"
 
-#, fuzzy
-#| msgid "Unknown system error"
 msgid "Unknown DNS error"
-msgstr "Nieznany błąd systemu"
+msgstr "Nieznany błąd DNS"
 
-#, fuzzy
-#| msgid "Invalid OID string"
 msgid "Invalid DNS section"
-msgstr "Niepoprawny łańcuch OID"
+msgstr "Błędna sekcja DNS"
 
-#, fuzzy
-#| msgid "Invalid S-expression"
 msgid "Invalid textual address form"
-msgstr "Niepoprawne S-wyrażenie"
+msgstr "Błędna postać tekstowa adresu"
 
-#, fuzzy
-#| msgid "Missing issuer certificate"
 msgid "Missing DNS query packet"
-msgstr "Brak certyfikatu wystawcy"
+msgstr "Brak pakietu zapytania DNS"
 
 msgid "Missing DNS answer packet"
-msgstr ""
+msgstr "Brak pakietu odpowiedzi DNS"
 
 msgid "Connection closed in DNS"
-msgstr ""
+msgstr "Połączenie zamknięte przez DNS"
 
-#, fuzzy
-#| msgid "Decryption failed"
 msgid "Verification failed in DNS"
-msgstr "Odszyfrowywanie nie powiodło się"
+msgstr "Weryfikacja przez DNS nie powiodła się"
 
-#, fuzzy
-#| msgid "Timeout"
 msgid "DNS Timeout"
-msgstr "Upłynął limit czasu"
+msgstr "Upłynął limit czasu DNS"
 
 msgid "General LDAP error"
 msgstr "Błąd ogólny LDAP"
@@ -1308,6 +1302,107 @@ msgstr "Zdefiniowany przez użytkownika kod błędu 15"
 msgid "User defined error code 16"
 msgstr "Zdefiniowany przez użytkownika kod błędu 16"
 
+#, fuzzy
+#| msgid "LDAP success"
+msgid "SQL success"
+msgstr "Sukces LDAP"
+
+#, fuzzy
+#| msgid "Syntax error"
+msgid "SQL error"
+msgstr "Błąd składni"
+
+msgid "Internal logic error in SQL library"
+msgstr ""
+
+msgid "Access permission denied (SQL)"
+msgstr ""
+
+msgid "SQL abort was requested"
+msgstr ""
+
+msgid "SQL database file is locked"
+msgstr ""
+
+msgid "An SQL table in the database is locked"
+msgstr ""
+
+msgid "SQL library ran out of core"
+msgstr ""
+
+msgid "Attempt to write a readonly SQL database"
+msgstr ""
+
+msgid "SQL operation terminated by interrupt"
+msgstr ""
+
+msgid "I/O error during SQL operation"
+msgstr ""
+
+msgid "SQL database disk image is malformed"
+msgstr ""
+
+msgid "Unknown opcode in SQL file control"
+msgstr ""
+
+msgid "Insertion failed because SQL database is full"
+msgstr ""
+
+msgid "Unable to open the SQL database file"
+msgstr ""
+
+#, fuzzy
+#| msgid "LDAP protocol error"
+msgid "SQL database lock protocol error"
+msgstr "Błąd protokołu LDAP"
+
+msgid "(internal SQL code: empty)"
+msgstr ""
+
+msgid "SQL database schema changed"
+msgstr ""
+
+msgid "String or blob exceeds size limit (SQL)"
+msgstr ""
+
+msgid "SQL abort due to constraint violation"
+msgstr ""
+
+msgid "Data type mismatch (SQL)"
+msgstr ""
+
+msgid "SQL library used incorrectly"
+msgstr ""
+
+msgid "SQL library uses unsupported OS features"
+msgstr ""
+
+#, fuzzy
+#| msgid "Proxied authorization denied by LDAP"
+msgid "Authorization denied (SQL)"
+msgstr "Autoryzacja przez proxy odrzucona przez LDAP"
+
+msgid "(unused SQL code: format)"
+msgstr ""
+
+msgid "SQL bind parameter out of range"
+msgstr ""
+
+msgid "File opened that is not an SQL database file"
+msgstr ""
+
+msgid "Notifications from SQL logger"
+msgstr ""
+
+msgid "Warnings from SQL logger"
+msgstr ""
+
+msgid "SQL has another row ready"
+msgstr ""
+
+msgid "SQL has finished executing"
+msgstr ""
+
 msgid "System error w/o errno"
 msgstr "Błąd systemowy bez errno"
 
@@ -1320,10 +1415,103 @@ msgstr "Koniec pliku"
 msgid "Unknown error code"
 msgstr "Nieznany kod błędu"
 
-#, c-format
-msgid "Usage: %s GPG-ERROR [...]\n"
-msgstr "Składnia: %s BŁĄD-GPG [...]\n"
+msgid "argument not expected"
+msgstr "nieoczekiwany argument"
+
+msgid "read error"
+msgstr "błąd odczytu"
+
+msgid "keyword too long"
+msgstr "słowo kluczowe zbyt długie"
+
+msgid "missing argument"
+msgstr "brak argumentu"
+
+msgid "invalid argument"
+msgstr "nłędny argument"
+
+msgid "invalid command"
+msgstr "błędne polecenie"
+
+msgid "invalid alias definition"
+msgstr "błędna definicja aliasu"
+
+#, fuzzy
+#| msgid "LDAP operations error"
+msgid "permission error"
+msgstr "Błąd operacji LDAP"
+
+msgid "out of core"
+msgstr "brak pamięci"
+
+#, fuzzy
+#| msgid "invalid command"
+msgid "invalid meta command"
+msgstr "błędne polecenie"
+
+#, fuzzy
+#| msgid "Unknown command"
+msgid "unknown meta command"
+msgstr "Nieznane polecenie"
+
+#, fuzzy
+#| msgid "Unexpected IPC command"
+msgid "unexpected meta command"
+msgstr "Nieoczekiwane polecenie IPC"
+
+msgid "invalid option"
+msgstr "błędna opcja"
 
 #, c-format
-msgid "%s: warning: could not recognize %s\n"
-msgstr "%s: uwaga: nie rozpoznano %s\n"
+msgid "missing argument for option \"%.50s\"\n"
+msgstr "brak argumentu dla opcji ,,%.50s''\n"
+
+#, c-format
+msgid "invalid argument for option \"%.50s\"\n"
+msgstr "błędny argumentu dla opcji ,,%.50s''\n"
+
+#, c-format
+msgid "option \"%.50s\" does not expect an argument\n"
+msgstr "opcja ,,%.50s'' nie może mieć argumentów\n"
+
+#, c-format
+msgid "invalid command \"%.50s\"\n"
+msgstr "błędne polecenie ,,%.50s''\n"
+
+#, c-format
+msgid "option \"%.50s\" is ambiguous\n"
+msgstr "opcja ,,%.50s'' jest niejednoznaczna\n"
+
+#, c-format
+msgid "command \"%.50s\" is ambiguous\n"
+msgstr "polecenie ,,%.50s'' jest niejednoznaczne\n"
+
+#, c-format
+msgid "invalid option \"%.50s\"\n"
+msgstr "błędna opcja ,,%.50s''\n"
+
+#, c-format
+msgid "Note: no default option file '%s'\n"
+msgstr ""
+
+#, c-format
+msgid "reading options from '%s'\n"
+msgstr ""
+
+#, c-format
+msgid "option file '%s': %s\n"
+msgstr ""
+
+#, c-format
+msgid "Note: ignoring option \"--%s\" due to global config\n"
+msgstr ""
+
+msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
+msgstr "Błędy prosimy zgłaszać pod <https://bugs.gnupg.org>.\n"
+
+#, c-format
+msgid "warning: could not recognize %s\n"
+msgstr "uwaga: nie rozpoznano %s\n"
+
+#~ msgid "out of core\n"
+#~ msgstr "brak pamięci\n"

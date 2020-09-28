@@ -168,6 +168,10 @@ const char *gpg_strerror_sym (gpg_error_t err);
 const char *gpg_strsource_sym (gpg_error_t err);
 
 
+/* Parse string STR assuming it is either a single number N or in the
+ * form K.N to denote an error source code K and and error code N.
+ * Returns false on error (e.g. invalid number) or true for valid
+ * codes; if true is returned a full error code is stored at ERR.  */
 static int
 get_err_from_number (char *str, gpg_error_t *err)
 {
@@ -199,6 +203,15 @@ get_err_from_number (char *str, gpg_error_t *err)
 }
 
 
+/* Helper function to parse a symbol either with a "GPG_ERR_SOURCE_"
+ * or "GPG_ERR_" prefix.  If the symbol is not available false is
+ * return; else the symbols value is ORed into the value at ERR
+ * (shifted for a GPG_ERR_SOURCE_) and true returned.  HAVE_SOURCE and
+ * HAVE_CODE are expected to be addresses where a 0 is stored; a 1 is
+ * stored at the respective address to mark whether a code or source
+ * value was found.  If one of those state variables already point to
+ * a true value the function will return 0 and not change the value at
+ * ERR.  */
 static int
 get_err_from_symbol_one (char *str, gpg_error_t *err,
 			 int *have_source, int *have_code)
@@ -251,6 +264,11 @@ get_err_from_symbol_one (char *str, gpg_error_t *err,
 }
 
 
+/* Parse string STR assuming it is either a single symbol C or in the
+ * form S.C to denote an error source symbold S and and error code
+ * symbold C.  Returns false on error (e.g. invalid number) or true
+ * for valid codes; if true is returned a full error code is stored at
+ * ERR.  */
 static int
 get_err_from_symbol (char *str, gpg_error_t *err)
 {
@@ -286,6 +304,44 @@ get_err_from_symbol (char *str, gpg_error_t *err)
 }
 
 
+/* Parse string STR assuming it partial code symbol and store its
+ * value at ERR and return true.  */
+static int
+get_err_from_codesymbol (char *str, gpg_error_t *err)
+{
+  static const char code_prefix[] = "GPG_ERR_";
+  gpg_err_code_t code;
+
+  *err = 0;
+
+  /* Skip an optional prefix.  */
+  if (!strncasecmp (code_prefix, str, sizeof (code_prefix) - 1))
+    str += sizeof (code_prefix) - 1;
+
+  for (code = 0; code < GPG_ERR_CODE_DIM; code++)
+    {
+      const char *code_sym = gpg_strerror_sym (code);
+      if (code_sym
+          && !strcasecmp (str, code_sym + sizeof (code_prefix) - 1))
+        {
+          *err |= code;
+          return 1;
+        }
+    }
+  return 0;
+}
+
+
+/* Helper function to parse a string which maps back to a source or
+ * code value.  If no source or code for the symbold is available
+ * false is return; else the source or code value is ORed into the
+ * value at ERR (shifted for a GPG_ERR_SOURCE_) and true returned.
+ * The match is first tried on source values and then on code values.
+ * HAVE_SOURCE and HAVE_CODE are expected to be addresses where a 0 is
+ * stored; a 1 is stored at the respective address to mark whether a
+ * code or source value was found.  If one of those state variables
+ * already point to a true value the function will return 0 and not
+ * change the value at ERR.  */
 static int
 get_err_from_str_one (char *str, gpg_error_t *err,
 		      int *have_source, int *have_code)
@@ -325,6 +381,11 @@ get_err_from_str_one (char *str, gpg_error_t *err,
 }
 
 
+/* Parse string STR assuming it is either a single desription string C
+ * or in the form S.C to denote an error source descrition S and and
+ * error code description C.  Returns false on error (e.g. invalid
+ * symbol) or true for valid codes; if true is returned a full error
+ * code is stored at ERR.  */
 static int
 get_err_from_str (char *str, gpg_error_t *err)
 {
@@ -336,10 +397,13 @@ get_err_from_str (char *str, gpg_error_t *err)
   char saved_char = 0; /* (avoid warning) */
 
   *err = 0;
+  /* First match on the entire string to handle the case that it is
+   * code description with spaces.  */
   ret = get_err_from_str_one (str, err, &have_source, &have_code);
   if (ret)
     return ret;
 
+  /* Then figure out whether the first string is a simple word.  */
   while (*str2 && ((*str2 >= 'A' && *str2 <= 'Z')
 		   || (*str2 >= 'a' && *str2 <= 'z')
 		   || (*str2 >= '0' && *str2 <= '9')
@@ -442,26 +506,36 @@ print_desc (const char *symbol)
 
 
 
-static int
-show_usage (const char *name)
+static const char *
+my_strusage (int level)
 {
-  if (name)
-    {
-      fprintf (stderr, _("Usage: %s GPG-ERROR [...]\n"),
-               strrchr (name,'/')? (strrchr (name, '/')+1): name);
-      exit (1);
-    }
+  const char *p;
 
-  fputs ("gpg-error (" PACKAGE_NAME ") " PACKAGE_VERSION "\n", stdout);
-  fputs ("Options:\n"
-         "  --version      Print version\n"
-         "  --lib-version  Print library version\n"
-         "  --help         Print this help\n"
-         "  --list         Print all error codes\n"
-         "  --defines      Print all error codes as #define lines\n"
-         "  --desc         Print with error description\n"
-         , stdout);
-  exit (0);
+  switch (level)
+    {
+    case  9: p = "LGPL-2.1-or-later"; break;
+
+    case 11: p = "gpg-error"; break;
+    case 12: p = PACKAGE_NAME; break;
+    case 13: p = PACKAGE_VERSION; break;
+    case 14: p = "Copyright (C) 2019 g10 Code GmbH"; break;
+    case 19: p = _("Please report bugs to <https://bugs.gnupg.org>.\n"); break;
+
+    case 1:
+    case 40:
+      p = ("Usage: gpg-error [options] error-numbers");
+      break;
+    case 41:
+      p = ("Map error numbers to strings and vice versa.\n");
+      break;
+
+    case 42:
+      p = "1"; /* Flag: print 40 as part of 41. */
+      break;
+
+    default: p = NULL; break;
+    }
+  return p;
 }
 
 
@@ -469,74 +543,122 @@ show_usage (const char *name)
 int
 main (int argc, char *argv[])
 {
-  const char *pgmname = argv[0];
-  int last_argc = -1;
+  enum { CMD_DEFAULT     = 0,
+         CMD_LIB_VERSION = 501,
+         CMD_LIST,
+         CMD_DEFINES,
+         CMD_LOCALE,
+         OPT_DESC
+  };
+  static gpgrt_opt_t opts[] = {
+    ARGPARSE_c (CMD_LIB_VERSION, "lib-version",
+                "Print library version"),
+    ARGPARSE_c (CMD_LIST, "list",
+                "Print all error codes"),
+    ARGPARSE_c (CMD_DEFINES, "defines",
+                "Print all error codes as #define lines"),
+#if HAVE_W32_SYSTEM
+    ARGPARSE_c (CMD_LOCALE, "locale",
+                "Return the locale used for gettext"),
+#else
+    ARGPARSE_c (CMD_LOCALE, "locale",
+                "@"),
+#endif
+    ARGPARSE_s_n (OPT_DESC, "desc",
+                  "Print with error description"),
+    ARGPARSE_end()
+  };
+  gpgrt_argparse_t pargs = { &argc, &argv };
+
   int i;
+  int libversion = 0;
   int listmode = 0;
+  int localemode = 0;
   int desc = 0;
+  const char *s, *s2;
   const char *source_sym;
   const char *error_sym;
   gpg_error_t err;
 
   gpgrt_init ();
   i18n_init ();
+  gpgrt_set_strusage (my_strusage);
+  gpgrt_log_set_prefix (gpgrt_strusage (11), GPGRT_LOG_WITH_PREFIX);
 
 
-  if (argc)
+  while (gpgrt_argparse (NULL, &pargs, opts))
+    {
+      switch (pargs.r_opt)
+        {
+        case CMD_LIB_VERSION: libversion = 1; break;
+        case CMD_LIST:       listmode = 1; break;
+        case CMD_DEFINES:    listmode = 2; break;
+        case CMD_LOCALE:     localemode = 1; break;
+        case OPT_DESC:       desc = 1; break;
+        default: pargs.err = ARGPARSE_PRINT_WARNING; break;
+        }
+    }
+  gpgrt_argparse (NULL, &pargs, NULL);  /* Free internal memory.  */
+
+  if (libversion)
+    {
+      if (argc)
+        gpgrt_usage (1);
+    }
+  else if (localemode)
+    {
+      if (argc > 1)
+        gpgrt_usage (1);
+    }
+  else if ((argc && listmode) || (!argc && !listmode))
+    gpgrt_usage (1);
+
+
+  if (libversion)
     {
       argc--; argv++;
+      printf ("Version from header: %s (0x%06x)\n",
+              GPG_ERROR_VERSION, GPG_ERROR_VERSION_NUMBER);
+      printf ("Version from binary: %s\n", gpg_error_check_version (NULL));
+      s = gpg_error_check_version ("\x01\x01");
+      while (*s && *s == '\n')
+        s++;
+      fputs ("Copyright blurb ...: ", stdout);
+      for (; *s; s++)
+        {
+          if (*s == '\n')
+            {
+              for (s2=s+1; *s2 == '\n'; s2++)
+                ;
+              if (!*s2)
+                break;  /* Cut off trailing LFs.  */
+              fputs ("\n                     ", stdout);
+            }
+          else
+            putc (*s, stdout);
+        }
+      putc ('\n', stdout);
     }
-  while (argc && last_argc != argc )
+  else if (localemode)
     {
-      last_argc = argc;
-      if (!strcmp (*argv, "--"))
+#if HAVE_W32_SYSTEM
+      if (argc)
         {
-          argc--; argv++;
-          break;
+          /* Warning: What we do here is not allowed because
+           * gpgrt_w32_override_locale needs to be called as early as
+           * possible.  However for this very purpose it is okay.  */
+          if (**argv >= '0' && **argv <= '9')
+            gpgrt_w32_override_locale (NULL, strtoul (*argv, NULL, 0));
+          else
+            gpgrt_w32_override_locale (*argv, 0);
         }
-      else if (!strcmp (*argv, "--version"))
-        {
-          fputs ("gpg-error (" PACKAGE_NAME ") " PACKAGE_VERSION "\n", stdout);
-          exit (0);
-        }
-      else if (!strcmp (*argv, "--help"))
-        {
-          show_usage (NULL);
-        }
-      else if (!strcmp (*argv, "--lib-version"))
-        {
-          argc--; argv++;
-          printf ("Version from header: %s (0x%06x)\n",
-                  GPG_ERROR_VERSION, GPG_ERROR_VERSION_NUMBER);
-          printf ("Version from binary: %s\n", gpg_error_check_version (NULL));
-          printf ("Copyright blurb ...:%s\n",
-                  gpg_error_check_version ("\x01\x01"));
-          exit (0);
-        }
-      else if (!strcmp (*argv, "--list"))
-        {
-          listmode = 1;
-          argc--; argv++;
-        }
-      else if (!strcmp (*argv, "--defines"))
-        {
-          listmode = 2;
-          argc--; argv++;
-        }
-      else if (!strcmp (*argv, "--desc"))
-        {
-          desc = 1;
-          argc--; argv++;
-        }
-      else if (!strncmp (*argv, "--", 2))
-        show_usage (pgmname);
+
+      printf ("%s\n", gettext_localename ());
+#else
+      log_info ("this command is only useful on Windows\n");
+#endif
     }
-
-  if ((argc && listmode) || (!argc && !listmode))
-    show_usage (pgmname);
-
-
-  if (listmode == 1)
+  else if (listmode == 1)
     {
       for (i=0; i <  GPG_ERR_SOURCE_DIM; i++)
         {
@@ -615,8 +737,15 @@ main (int argc, char *argv[])
     {
       for (i=0; i < argc; i++)
         {
+          /* First check the arg is a number N or K.N,
+           * then check the arg for CODESYM or SOURCESYM.CODESYM,
+           * then check the arg for CODESYM or CODESYM w/o GPG_ERR_ prefix,
+           * then check the arg for code description
+           *                     or symbol dot code description.
+           */
           if (get_err_from_number (argv[i], &err)
               || get_err_from_symbol (argv[i], &err)
+              || get_err_from_codesymbol (argv[i], &err)
               || get_err_from_str (argv[i], &err))
             {
               source_sym = gpg_strsource_sym (err);
@@ -630,8 +759,7 @@ main (int argc, char *argv[])
                 print_desc (error_sym);
             }
           else
-            fprintf (stderr, _("%s: warning: could not recognize %s\n"),
-                     argv[0], argv[i]);
+            log_error (_("warning: could not recognize %s\n"), argv[i]);
         }
     }
 

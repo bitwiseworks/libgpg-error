@@ -23,6 +23,7 @@
 
 #include "gpg-error.h"
 #include "visibility.h"
+#include "protos.h"
 
 /*
  * Internal i18n macros.
@@ -107,9 +108,14 @@ void _gpg_err_set_errno (int err);
 
 gpg_error_t _gpg_err_init (void);
 void _gpg_err_deinit (int mode);
+
+void _gpgrt_add_emergency_cleanup (void (*f)(void));
+void _gpgrt_abort (void) GPGRT_ATTR_NORETURN;
+
 void _gpgrt_set_alloc_func (void *(*f)(void *a, size_t n));
 
 void *_gpgrt_realloc (void *a, size_t n);
+void *_gpgrt_reallocarray (void *a, size_t oldnmemb, size_t nmemb, size_t size);
 void *_gpgrt_malloc (size_t n);
 void *_gpgrt_calloc (size_t n, size_t m);
 char *_gpgrt_strdup (const char *string);
@@ -122,8 +128,11 @@ char *_gpgrt_strconcat_core (const char *s1, va_list arg_ptr);
 #define xtrymalloc(a)    _gpgrt_malloc ((a))
 #define xtrycalloc(a,b)  _gpgrt_calloc ((a),(b))
 #define xtryrealloc(a,b) _gpgrt_realloc ((a),(b))
+#define xtryreallocarray(a,b,c,d) _gpgrt_reallocarray ((a),(b),(c),(d))
+#define xtrystrdup(a)    _gpgrt_strdup ((a))
 
-
+void _gpgrt_pre_syscall (void);
+void _gpgrt_post_syscall (void);
 
 const char *_gpg_error_check_version (const char *req_version);
 
@@ -206,12 +215,12 @@ void _gpgrt_internal_trace_end (void);
 
 /*
  * A private cookie function to implement an internal IOCTL service.
- * and ist IOCTL numbers.
  */
 typedef int (*cookie_ioctl_function_t) (void *cookie, int cmd,
 					void *ptr, size_t *len);
 #define COOKIE_IOCTL_SNATCH_BUFFER 1
 #define COOKIE_IOCTL_NONBLOCK      2
+#define COOKIE_IOCTL_TRUNCATE      3
 
 /* An internal variant of gpgrt_cookie_close_function_t with a slot
  * for the ioctl function.  */
@@ -248,7 +257,13 @@ typedef struct notify_list_s *notify_list_t;
  * Buffer management layer.
  */
 
-#define BUFFER_BLOCK_SIZE  BUFSIZ
+/* BUFSIZ on Windows is 512 but on current Linux it is 8k.  We better
+ * use the 8k for Windows as well.  */
+#ifdef HAVE_W32_SYSTEM
+# define BUFFER_BLOCK_SIZE  8192
+#else
+# define BUFFER_BLOCK_SIZE  BUFSIZ
+#endif
 #define BUFFER_UNREAD_SIZE 16
 
 
@@ -325,6 +340,7 @@ gpgrt_stream_t _gpgrt_fopencookie (void *_GPGRT__RESTRICT cookie,
                                    const char *_GPGRT__RESTRICT mode,
                                    gpgrt_cookie_io_functions_t functions);
 int _gpgrt_fclose (gpgrt_stream_t stream);
+int _gpgrt_fcancel (gpgrt_stream_t stream);
 int _gpgrt_fclose_snatch (gpgrt_stream_t stream,
                           void **r_buffer, size_t *r_buflen);
 int _gpgrt_onclose (gpgrt_stream_t stream, int mode,
@@ -364,6 +380,7 @@ int _gpgrt_fseeko (gpgrt_stream_t stream, gpgrt_off_t offset, int whence);
 long int _gpgrt_ftell (gpgrt_stream_t stream);
 gpgrt_off_t _gpgrt_ftello (gpgrt_stream_t stream);
 void _gpgrt_rewind (gpgrt_stream_t stream);
+int  _gpgrt_ftruncate (estream_t stream, gpgrt_off_t length);
 
 int _gpgrt_fgetc (gpgrt_stream_t stream);
 int _gpgrt_fputc (int c, gpgrt_stream_t stream);
@@ -432,11 +449,13 @@ int _gpgrt_fprintf_unlocked (gpgrt_stream_t _GPGRT__RESTRICT stream,
                              GPGRT_ATTR_PRINTF(2,3);
 
 int _gpgrt_vfprintf (gpgrt_stream_t _GPGRT__RESTRICT stream,
+                     gpgrt_string_filter_t sf, void *sfvalue,
                      const char *_GPGRT__RESTRICT format, va_list ap)
-                     GPGRT_ATTR_PRINTF(2,0);
+                     GPGRT_ATTR_PRINTF(4,0);
 int _gpgrt_vfprintf_unlocked (gpgrt_stream_t _GPGRT__RESTRICT stream,
+                              gpgrt_string_filter_t sf, void *sfvalue,
                               const char *_GPGRT__RESTRICT format, va_list ap)
-                              GPGRT_ATTR_PRINTF(2,0);
+                              GPGRT_ATTR_PRINTF(4,0);
 
 int _gpgrt_setvbuf (gpgrt_stream_t _GPGRT__RESTRICT stream,
                     char *_GPGRT__RESTRICT buf, int mode, size_t size);
@@ -459,12 +478,13 @@ const char *_gpgrt_fname_get (gpgrt_stream_t stream);
 #include "estream-printf.h"
 
 /* Make sure we always use our snprintf */
+#undef snprintf
 #define snprintf _gpgrt_estream_snprintf
 
 
 #if HAVE_W32_SYSTEM
-/* Prototypes for w32-estream.c.  */
-struct cookie_io_functions_s _gpgrt_functions_w32_pollable;
+/* Prototypes for w32-estream.c. */
+extern struct cookie_io_functions_s _gpgrt_functions_w32_pollable;
 int _gpgrt_w32_pollable_create (void *_GPGRT__RESTRICT *_GPGRT__RESTRICT cookie,
                                 unsigned int modeflags,
                                 struct cookie_io_functions_s next_functions,
@@ -478,10 +498,30 @@ int _gpgrt_w32_poll (gpgrt_poll_t *fds, size_t nfds, int timeout);
  * Local prototypes for the encoders.
  */
 
+struct _gpgrt_b64state
+{
+  int idx;
+  int quad_count;
+  estream_t stream;
+  char *title;
+  unsigned char radbuf[4];
+  unsigned int crc;
+  gpg_err_code_t lasterr;
+  unsigned int flags;
+  unsigned int stop_seen:1;
+  unsigned int invalid_encoding:1;
+  unsigned int using_decoder:1;
+};
+
+gpgrt_b64state_t _gpgrt_b64enc_start (estream_t stream, const char *title);
+gpg_err_code_t   _gpgrt_b64enc_write (gpgrt_b64state_t state,
+                                      const void *buffer, size_t nbytes);
+gpg_err_code_t   _gpgrt_b64enc_finish (gpgrt_b64state_t state);
+
 gpgrt_b64state_t _gpgrt_b64dec_start (const char *title);
-gpg_error_t _gpgrt_b64dec_proc (gpgrt_b64state_t state, void *buffer,
-                                size_t length, size_t *r_nbytes);
-gpg_error_t _gpgrt_b64dec_finish (gpgrt_b64state_t state);
+gpg_err_code_t _gpgrt_b64dec_proc (gpgrt_b64state_t state, void *buffer,
+                                   size_t length, size_t *r_nbytes);
+gpg_err_code_t _gpgrt_b64dec_finish (gpgrt_b64state_t state);
 
 
 
@@ -550,6 +590,184 @@ int _gpgrt_logv_internal (int level, int ignore_arg_ptr,
                           const char *prefmt, const char *fmt,
                           va_list arg_ptr);
 
+
+/*
+ * Local prototypes for the spawn functions.
+ *
+ * We put the docs here because we have separate implementations in
+ * the files spawn-posix.c and spawn-w32.c
+ */
+
+/* Return the maximum number of currently allowed file descriptors.
+ * Only useful on POSIX systems.  */
+/* int get_max_fds (void); */
+
+
+/* Close all file descriptors starting with descriptor FIRST.  If
+ * EXCEPT is not NULL, it is expected to be a list of file descriptors
+ * which are not to close.  This list shall be sorted in ascending
+ * order with its end marked by -1.  */
+/* void close_all_fds (int first, int *except); */
+
+
+/* Returns an array with all currently open file descriptors.  The end
+ * of the array is marked by -1.  The caller needs to release this
+ * array using the *standard free* and not with xfree.  This allow the
+ * use of this function right at startup even before libgcrypt has
+ * been initialized.  Returns NULL on error and sets ERRNO accordingly.  */
+/* int *get_all_open_fds (void); */
+
+/* Create a pipe.  The DIRECTION parameter gives the type of the created pipe:
+ *   DIRECTION < 0 := Inbound pipe: On Windows the write end is inheritable.
+ *   DIRECTION > 0 := Outbound pipe: On Windows the read end is inheritable.
+ * If R_FP is NULL a standard pipe and no stream is created, DIRECTION
+ * should then be 0.   */
+gpg_err_code_t _gpgrt_make_pipe (int filedes[2], estream_t *r_fp,
+                                 int direction, int nonblock);
+
+/* Convenience macros to create a pipe.  */
+#define _gpgrt_create_pipe(a)              _gpgrt_make_pipe ((a),NULL, 0,    0);
+#define _gpgrt_create_inbound_pipe(a,b,c)  _gpgrt_make_pipe ((a), (b), -1, (c));
+#define _gpgrt_create_outbound_pipe(a,b,c) _gpgrt_make_pipe ((a), (b),  1, (c));
+
+
+/* Fork and exec the program PGMNAME.
+ *
+ * If R_INFP is NULL connect stdin of the new process to /dev/null; if
+ * it is not NULL store the address of a pointer to a new estream
+ * there. If R_OUTFP is NULL connect stdout of the new process to
+ * /dev/null; if it is not NULL store the address of a pointer to a
+ * new estream there.  If R_ERRFP is NULL connect stderr of the new
+ * process to /dev/null; if it is not NULL store the address of a
+ * pointer to a new estream there.  On success the pid of the new
+ * process is stored at PID.  On error -1 is stored at PID and if
+ * R_OUTFP or R_ERRFP are not NULL, NULL is stored there.
+ *
+ * The arguments for the process are expected in the NULL terminated
+ * array ARGV.  The program name itself should not be included there.
+ * If PREEXEC is not NULL, the given function will be called right
+ * before the exec.
+ *
+ * IF EXCEPT is not NULL, it is expected to be an ordered list of file
+ * descriptors, terminated by an entry with the value (-1).  These
+ * file descriptors won't be closed before spawning a new program.
+ *
+ * Returns 0 on success or an error code.  Calling gpgrt_wait_process
+ * and gpgrt_release_process is required if the function succeeded.
+ *
+ * FLAGS is a bit vector:
+ *
+ * GPGRT_SPAWN_NONBLOCK
+ *        If set the two output streams are created in non-blocking
+ *        mode and the input stream is switched to non-blocking mode.
+ *        This is merely a convenience feature because the caller
+ *        could do the same with gpgrt_set_nonblock.  Does not yet
+ *        work for Windows.
+ *
+ * GPGRT_SPAWN_DETACHED
+ *        If set the process will be started as a background process.
+ *        This flag is only useful under W32 (but not W32CE) systems,
+ *        so that no new console is created and pops up a console
+ *        window when starting the server.  Does not work on W32CE.
+ *
+ * GPGRT_SPAWN_RUN_ASFW
+ *        On W32 (but not on W32CE) run AllowSetForegroundWindow for
+ *        the child.  Note that due to unknown problems this actually
+ *        allows SetForegroundWindow for all children of this process.
+ */
+gpg_err_code_t
+_gpgrt_spawn_process (const char *pgmname, const char *argv[],
+                      int *execpt, void (*preexec)(void), unsigned int flags,
+                      estream_t *r_infp,
+                      estream_t *r_outfp,
+                      estream_t *r_errfp,
+                      pid_t *pid);
+
+
+/* Simplified version of gpgrt_spawn_process.  This function forks and
+ * then execs PGMNAME, while connecting INFD to stdin, OUTFD to stdout
+ * and ERRFD to stderr (any of them may be -1 to connect them to
+ * /dev/null).  The arguments for the process are expected in the NULL
+ * terminated array ARGV.  The program name itself should not be
+ * included there.  Calling gpgrt_wait_process and
+ * gpgrt_release_process is required.  Returns 0 on success or an
+ * error code. */
+gpg_err_code_t _gpgrt_spawn_process_fd (const char *pgmname,
+                                        const char *argv[],
+                                        int infd, int outfd, int errfd,
+                                        pid_t *pid);
+
+/* Spawn a new process and immediately detach from it.  The name of
+ * the program to exec is PGMNAME and its arguments are in ARGV (the
+ * programname is automatically passed as first argument).
+ * Environment strings in ENVP are set.  An error is returned if
+ * pgmname is not executable; to make this work it is necessary to
+ * provide an absolute file name.  */
+gpg_err_code_t _gpgrt_spawn_process_detached (const char *pgmname,
+                                              const char *argv[],
+                                              const char *envp[] );
+
+/* If HANG is true, waits for the process identified by PID to exit;
+ * if HANG is false, checks whether the process has terminated.
+ * PGMNAME should be the same as supplied to the spawn function and is
+ * only used for diagnostics.  Return values:
+ *
+ * 0
+ *     The process exited successful.  0 is stored at R_EXITCODE.
+ *
+ * GPG_ERR_GENERAL
+ *     The process exited without success.  The exit code of process
+ *     is then stored at R_EXITCODE.  An exit code of -1 indicates
+ *     that the process terminated abnormally (e.g. due to a signal).
+ *
+ * GPG_ERR_TIMEOUT
+ *     The process is still running (returned only if HANG is false).
+ *
+ * GPG_ERR_INV_VALUE
+ *     An invalid PID has been specified.
+ *
+ * Other error codes may be returned as well.  Unless otherwise noted,
+ * -1 will be stored at R_EXITCODE.  R_EXITCODE may be passed as NULL
+ * if the exit code is not required (in that case an error message will
+ * be printed).  Note that under Windows PID is not the process id but
+ * the handle of the process.  */
+gpg_err_code_t _gpgrt_wait_process (const char *pgmname, pid_t pid, int hang,
+                                    int *r_exitcode);
+
+/* Like _gpgrt_wait_process, but for COUNT processes.  */
+gpg_err_code_t _gpgrt_wait_processes (const char **pgmnames, pid_t *pids,
+                                      size_t count, int hang, int *r_exitcodes);
+
+/* Kill a process; that is send an appropriate signal to the process.
+ * gpgrt_wait_process must be called to actually remove the process
+ * from the system.  An invalid PID is ignored.  */
+void _gpgrt_kill_process (pid_t pid);
+
+/* Release the process identified by PID.  This function is actually
+ * only required for Windows but it does not harm to always call it.
+ * It is a nop if PID is invalid.  */
+void _gpgrt_release_process (pid_t pid);
+
+
+/*
+ * Local prototypes for argparse.
+ */
+int _gpgrt_argparse (estream_t fp, gpgrt_argparse_t *arg, gpgrt_opt_t *opts);
+int _gpgrt_argparser (gpgrt_argparse_t *arg, gpgrt_opt_t *opts,
+                      const char *confname);
+void _gpgrt_usage (int level);
+const char *_gpgrt_strusage (int level);
+void _gpgrt_set_strusage (const char *(*f)(int));
+void _gpgrt_set_usage_outfnc (int (*fnc)(int, const char *));
+void _gpgrt_set_fixed_string_mapper (const char *(*f)(const char*));
+void _gpgrt_set_confdir (int what, const char *name);
+
+
+/*
+ * Various helper functions
+ */
+int _gpgrt_cmp_version (const char *a, const char *b, int level);
+
 
 
 /*
@@ -559,6 +777,36 @@ int _gpgrt_logv_internal (int level, int ignore_arg_ptr,
 /* Return true if FD is valid.  */
 int _gpgrt_fd_valid_p (int fd);
 
+/* A getenv variant which returns a malloced copy.  */
+char *_gpgrt_getenv (const char *name);
+
+/* A setenv variant which can be used for unsetenv by setting VALUE to
+ * NULL and OVERRIDE to true.  */
+gpg_err_code_t _gpgrt_setenv (const char *name,
+                              const char *value, int overwrite);
+
+/* A wrapper around mkdir using a string for the mode (permissions).  */
+gpg_err_code_t _gpgrt_mkdir (const char *name, const char *modestr);
+
+/* A simple wrapper around chdir.  */
+gpg_err_code_t _gpgrt_chdir (const char *name);
+
+/* Return the current WD as a malloced string.  */
+char *_gpgrt_getcwd (void);
+
+/* Return the home directory of user NAME.  */
+char *_gpgrt_getpwdir (const char *name);
+
+/* Return the account name of the current user.  */
+char *_gpgrt_getusername (void);
+
+/* Expand and concat file name parts.  */
+char *_gpgrt_vfnameconcat (int want_abs, const char *first_part,
+                           va_list arg_ptr);
+char *_gpgrt_fnameconcat (const char *first_part,
+                          ... ) GPGRT_ATTR_SENTINEL(0);
+char *_gpgrt_absfnameconcat (const char *first_part,
+                             ... ) GPGRT_ATTR_SENTINEL(0);
 
 
 /*

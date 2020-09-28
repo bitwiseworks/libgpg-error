@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error 1.1\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"PO-Revision-Date: 2013-02-23 20:10+0100\n"
+"PO-Revision-Date: 2018-03-21 19:03+0100\n"
 "Last-Translator: Laurentiu Buzdugan <lbuz@rolix.org>\n"
 "Language-Team: Romanian <translation-team-ro@lists.sourceforge.net>\n"
 "Language: ro\n"
@@ -1059,6 +1059,33 @@ msgstr ""
 msgid "Wrong name"
 msgstr "Nume necunoscut"
 
+#, fuzzy
+msgid "Not authenticated"
+msgstr "Neforţat(ă)"
+
+#, fuzzy
+#| msgid "Unsupported protection"
+msgid "Bad authentication"
+msgstr "Protecţie nesuportată"
+
+#, fuzzy
+#| msgid "No agent running"
+msgid "No Keybox daemon running"
+msgstr "Nu rulează nici un agent"
+
+#, fuzzy
+#| msgid "SmartCard daemon error"
+msgid "Keybox daemon error"
+msgstr "Eroare daemon SmartCard"
+
+msgid "Service is not running"
+msgstr ""
+
+#, fuzzy
+#| msgid "Keyserver error"
+msgid "Service error"
+msgstr "Eroare server de chei"
+
 msgid "System bug detected"
 msgstr ""
 
@@ -1482,6 +1509,105 @@ msgstr "Cod de eroare definit de utilizator 15"
 msgid "User defined error code 16"
 msgstr "Cod de eroare definit de utilizator 16"
 
+#, fuzzy
+#| msgid "Success"
+msgid "SQL success"
+msgstr "Succes"
+
+#, fuzzy
+#| msgid "Syntax error"
+msgid "SQL error"
+msgstr "Eroare de sintaxă"
+
+msgid "Internal logic error in SQL library"
+msgstr ""
+
+msgid "Access permission denied (SQL)"
+msgstr ""
+
+msgid "SQL abort was requested"
+msgstr ""
+
+msgid "SQL database file is locked"
+msgstr ""
+
+msgid "An SQL table in the database is locked"
+msgstr ""
+
+msgid "SQL library ran out of core"
+msgstr ""
+
+msgid "Attempt to write a readonly SQL database"
+msgstr ""
+
+msgid "SQL operation terminated by interrupt"
+msgstr ""
+
+msgid "I/O error during SQL operation"
+msgstr ""
+
+msgid "SQL database disk image is malformed"
+msgstr ""
+
+msgid "Unknown opcode in SQL file control"
+msgstr ""
+
+msgid "Insertion failed because SQL database is full"
+msgstr ""
+
+msgid "Unable to open the SQL database file"
+msgstr ""
+
+#, fuzzy
+#| msgid "Protocol violation"
+msgid "SQL database lock protocol error"
+msgstr "Violare de protocol"
+
+msgid "(internal SQL code: empty)"
+msgstr ""
+
+msgid "SQL database schema changed"
+msgstr ""
+
+msgid "String or blob exceeds size limit (SQL)"
+msgstr ""
+
+msgid "SQL abort due to constraint violation"
+msgstr ""
+
+msgid "Data type mismatch (SQL)"
+msgstr ""
+
+msgid "SQL library used incorrectly"
+msgstr ""
+
+msgid "SQL library uses unsupported OS features"
+msgstr ""
+
+msgid "Authorization denied (SQL)"
+msgstr ""
+
+msgid "(unused SQL code: format)"
+msgstr ""
+
+msgid "SQL bind parameter out of range"
+msgstr ""
+
+msgid "File opened that is not an SQL database file"
+msgstr ""
+
+msgid "Notifications from SQL logger"
+msgstr ""
+
+msgid "Warnings from SQL logger"
+msgstr ""
+
+msgid "SQL has another row ready"
+msgstr ""
+
+msgid "SQL has finished executing"
+msgstr ""
+
 msgid "System error w/o errno"
 msgstr ""
 
@@ -1494,13 +1620,117 @@ msgstr "Sfârşit de fişier"
 msgid "Unknown error code"
 msgstr "Cod de eroare necunoscut"
 
-#, c-format
-msgid "Usage: %s GPG-ERROR [...]\n"
-msgstr "Folosire: %s EROARE-GPG [...]\n"
+#, fuzzy
+msgid "argument not expected"
+msgstr "Nu sunt permise comenzi administrare\n"
+
+#, fuzzy
+msgid "read error"
+msgstr "eroare citire fişier"
+
+#, fuzzy
+msgid "keyword too long"
+msgstr "linie prea lungă"
+
+#, fuzzy
+msgid "missing argument"
+msgstr "argument invalid"
+
+#, fuzzy
+#| msgid "invalid armor"
+msgid "invalid argument"
+msgstr "armură invalidă"
+
+#, fuzzy
+msgid "invalid command"
+msgstr "Comandă numai-administrare\n"
+
+#, fuzzy
+msgid "invalid alias definition"
+msgstr "opţiuni enumerare invalide\n"
+
+#, fuzzy
+#| msgid "Configuration error"
+msgid "permission error"
+msgstr "Eroare de configurare"
+
+#, fuzzy
+msgid "out of core"
+msgstr "neforţat(ă)"
+
+#, fuzzy
+msgid "invalid meta command"
+msgstr "Comandă numai-administrare\n"
+
+#, fuzzy
+msgid "unknown meta command"
+msgstr "Cod de eroare necunoscut"
+
+#, fuzzy
+msgid "unexpected meta command"
+msgstr "Etichetă neaşteptată"
+
+#, fuzzy
+msgid "invalid option"
+msgstr "opţiuni enumerare invalide\n"
 
 #, c-format
-msgid "%s: warning: could not recognize %s\n"
-msgstr "%s: avertisment: nu am putut recunoaşte %s\n"
+msgid "missing argument for option \"%.50s\"\n"
+msgstr ""
+
+#, fuzzy, c-format
+msgid "invalid argument for option \"%.50s\"\n"
+msgstr "opţiuni enumerare invalide\n"
+
+#, c-format
+msgid "option \"%.50s\" does not expect an argument\n"
+msgstr ""
+
+#, fuzzy, c-format
+msgid "invalid command \"%.50s\"\n"
+msgstr "Comandă invalidă  (încercaţi \"ajutor\")\n"
+
+#, c-format
+msgid "option \"%.50s\" is ambiguous\n"
+msgstr ""
+
+#, c-format
+msgid "command \"%.50s\" is ambiguous\n"
+msgstr ""
+
+#, fuzzy, c-format
+msgid "invalid option \"%.50s\"\n"
+msgstr "opţiuni enumerare invalide\n"
+
+#, c-format
+msgid "Note: no default option file '%s'\n"
+msgstr ""
+
+#, c-format
+msgid "reading options from '%s'\n"
+msgstr ""
+
+#, c-format
+msgid "option file '%s': %s\n"
+msgstr ""
+
+#, c-format
+msgid "Note: ignoring option \"--%s\" due to global config\n"
+msgstr ""
+
+msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
+msgstr ""
+
+#, c-format
+msgid "warning: could not recognize %s\n"
+msgstr "avertisment: nu am putut recunoaşte %s\n"
+
+#, fuzzy
+#~ msgid "out of core\n"
+#~ msgstr "neforţat(ă)"
+
+#~ msgid "Usage: %s GPG-ERROR [...]\n"
+#~ msgstr "Folosire: %s EROARE-GPG [...]\n"
 
 #, fuzzy
 #~| msgid "Resources exhausted"

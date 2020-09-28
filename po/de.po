@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error-1.19\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"PO-Revision-Date: 2017-02-28 12:47+0100\n"
+"PO-Revision-Date: 2020-02-07 13:09+0100\n"
 "Last-Translator: Werner Koch <wk@gnupg.org>\n"
 "Language-Team: none\n"
 "Language: de\n"
@@ -966,6 +966,24 @@ msgstr "Später erneut versuchen"
 msgid "Wrong name"
 msgstr "Falscher Name"
 
+msgid "Not authenticated"
+msgstr "Nicht authentifiziert"
+
+msgid "Bad authentication"
+msgstr "Falsche Authentifizierung"
+
+msgid "No Keybox daemon running"
+msgstr "Keybox-Daemon läuft nicht"
+
+msgid "Keybox daemon error"
+msgstr "Fehler im Keybox-Daemon"
+
+msgid "Service is not running"
+msgstr "Service ist nicht aktiv"
+
+msgid "Service error"
+msgstr "Fehler im Service"
+
 msgid "System bug detected"
 msgstr "Fehler im System entdeckt"
 
@@ -1287,6 +1305,99 @@ msgstr "Benutzerdefinierter Fehlercode 15"
 msgid "User defined error code 16"
 msgstr "Benutzerdefinierter Fehlercode 16"
 
+msgid "SQL success"
+msgstr "SQL erfolgreich"
+
+msgid "SQL error"
+msgstr "SQL Fehler"
+
+msgid "Internal logic error in SQL library"
+msgstr "Interner Logikfehler in der SQL Bibliothek"
+
+msgid "Access permission denied (SQL)"
+msgstr "Zugriff verweigert (SQL)"
+
+msgid "SQL abort was requested"
+msgstr "SQL Abbruch wurde angefordert"
+
+msgid "SQL database file is locked"
+msgstr "SQL Datenbank ist gesperrt"
+
+msgid "An SQL table in the database is locked"
+msgstr "Eine SQL Tabelle in der Datenbank ist gesperrt"
+
+msgid "SQL library ran out of core"
+msgstr "SQL Bibliothek hat nicht mehr genügend Hauptspeicher"
+
+msgid "Attempt to write a readonly SQL database"
+msgstr "Versuch auf einen read-only SQL Datenbank zu schreiben"
+
+msgid "SQL operation terminated by interrupt"
+msgstr "SQL Operation durch einen Interrupt beendet"
+
+msgid "I/O error during SQL operation"
+msgstr "I/O Fehler während einer SQL Operation"
+
+msgid "SQL database disk image is malformed"
+msgstr "Dateiabbild der SQL Datenbank ist fehlerhaft"
+
+msgid "Unknown opcode in SQL file control"
+msgstr "Unbekannter \"opcode\" in der SQL Dateisteuerung"
+
+msgid "Insertion failed because SQL database is full"
+msgstr "Einfügen in SQL Datenbank fehlgeschlagen da die Platte voll ist"
+
+msgid "Unable to open the SQL database file"
+msgstr "Die Datei der SQL Datenbank konnte nicht geöffnet werden"
+
+msgid "SQL database lock protocol error"
+msgstr "SQL Dateisperren Protokollverletzung"
+
+msgid "(internal SQL code: empty)"
+msgstr "(Interner SQL Code: leer)"
+
+msgid "SQL database schema changed"
+msgstr "SQL Datenbankschema hat sich geändert"
+
+msgid "String or blob exceeds size limit (SQL)"
+msgstr "String oder Blob ist zu gross (SQL)"
+
+msgid "SQL abort due to constraint violation"
+msgstr "SQL Abbruch wg. einer nicht eingehaltenen Zwangsbedingung"
+
+msgid "Data type mismatch (SQL)"
+msgstr "Datentyp stimmt nicht überein (SQL)"
+
+msgid "SQL library used incorrectly"
+msgstr "SQL Bibliothek wurde falsch verwendet"
+
+msgid "SQL library uses unsupported OS features"
+msgstr "SQL Bibliothek benutzt vom OS nicht unterstützte Funktionen"
+
+msgid "Authorization denied (SQL)"
+msgstr "Authentifizierung verweigert (SQL)"
+
+msgid "(unused SQL code: format)"
+msgstr "(unused SQL code: format)"
+
+msgid "SQL bind parameter out of range"
+msgstr "SQL Bind-Parameter ausserhalb der Grenzwerte"
+
+msgid "File opened that is not an SQL database file"
+msgstr "Geöffnete Datei ist keine SQL Datenbank"
+
+msgid "Notifications from SQL logger"
+msgstr "Benachrichtigungen vom SQL Logger"
+
+msgid "Warnings from SQL logger"
+msgstr "Warnungen vom SQL Logger"
+
+msgid "SQL has another row ready"
+msgstr "SQL hält eine neue \"Row\" bereit"
+
+msgid "SQL has finished executing"
+msgstr "SQL Ausführung ist beendet"
+
 msgid "System error w/o errno"
 msgstr "Systemfehler ohne gesetzten Systemfehlercode"
 
@@ -1299,13 +1410,110 @@ msgstr "Dateiende"
 msgid "Unknown error code"
 msgstr "Unbekannter Fehlercode"
 
-#, c-format
-msgid "Usage: %s GPG-ERROR [...]\n"
-msgstr "Aufruf: %s GPG-FEHLER [...]\n"
+msgid "argument not expected"
+msgstr "Argument nicht erwartet"
+
+msgid "read error"
+msgstr "Lesefehler"
+
+msgid "keyword too long"
+msgstr "Schlüsselwort ist zu lang"
+
+msgid "missing argument"
+msgstr "Fehlendes Argument"
+
+msgid "invalid argument"
+msgstr "Ungültiges Argument"
+
+msgid "invalid command"
+msgstr "Ungültiger Befehl"
+
+msgid "invalid alias definition"
+msgstr "Ungültige Alias-Definition"
+
+#, fuzzy
+#| msgid "LDAP operations error"
+msgid "permission error"
+msgstr "LDAP Konfigurationsfehler"
+
+msgid "out of core"
+msgstr "Nicht genügend Speicher"
+
+#, fuzzy
+#| msgid "invalid command"
+msgid "invalid meta command"
+msgstr "Ungültiger Befehl"
+
+#, fuzzy
+#| msgid "Unknown command"
+msgid "unknown meta command"
+msgstr "Unbekanntes Kommando"
+
+#, fuzzy
+#| msgid "Unexpected IPC command"
+msgid "unexpected meta command"
+msgstr "Unerwartetes IPC Kommando"
+
+msgid "invalid option"
+msgstr "Ungültige Option"
 
 #, c-format
-msgid "%s: warning: could not recognize %s\n"
-msgstr "%s: Warnung: %s konnte nicht erkannt werden\n"
+msgid "missing argument for option \"%.50s\"\n"
+msgstr "Fehlendes Argument für Option \"%.50s\"\n"
+
+#, c-format
+msgid "invalid argument for option \"%.50s\"\n"
+msgstr "Ungültiges Argument für Option \"%.50s\"\n"
+
+#, c-format
+msgid "option \"%.50s\" does not expect an argument\n"
+msgstr "Option \"%.50s\" erwartet kein Argument\n"
+
+#, c-format
+msgid "invalid command \"%.50s\"\n"
+msgstr "Ungültiger Befehl \"%.50s\"\n"
+
+#, c-format
+msgid "option \"%.50s\" is ambiguous\n"
+msgstr "Option \"%.50s\" ist mehrdeutig\n"
+
+#, c-format
+msgid "command \"%.50s\" is ambiguous\n"
+msgstr "Befehl \"%.50s\" ist mehrdeutig\n"
+
+#, c-format
+msgid "invalid option \"%.50s\"\n"
+msgstr "Ungültige Option \"%.50s\"\n"
+
+#, c-format
+msgid "Note: no default option file '%s'\n"
+msgstr ""
+
+#, c-format
+msgid "reading options from '%s'\n"
+msgstr ""
+
+#, c-format
+msgid "option file '%s': %s\n"
+msgstr ""
+
+#, c-format
+msgid "Note: ignoring option \"--%s\" due to global config\n"
+msgstr ""
+
+msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
+msgstr ""
+"Berichte über Programmfehler bitte in englisch an <https://bugs.gnupg.org>.\n"
+
+#, c-format
+msgid "warning: could not recognize %s\n"
+msgstr "Warnung: %s konnte nicht erkannt werden\n"
+
+#~ msgid "out of core\n"
+#~ msgstr "Nicht genügend Speicher\n"
+
+#~ msgid "Usage: %s GPG-ERROR [...]\n"
+#~ msgstr "Aufruf: %s GPG-FEHLER [...]\n"
 
 #~ msgid "LCUP Resources exhausted"
 #~ msgstr "LCUP Ressourcen erschöpft"

@@ -25,17 +25,20 @@ else
 extra_includes =
 endif
 
+EXTRA_DIST = t-argparse.conf etc/t-argparse.conf
+
 gpg_error_lib = ../src/libgpg-error.la
 
-TESTS = t-version t-strerror t-syserror t-lock t-printf t-poll t-b64dec
+TESTS = t-version t-strerror t-syserror t-lock t-printf t-poll t-b64 \
+	t-argparse t-logging t-stringutils t-malloc
 
 AM_CPPFLAGS = -I$(top_builddir)/src $(extra_includes)
 
 AM_LDFLAGS = -no-install
-LDADD = $(gpg_error_lib)
+LDADD = $(gpg_error_lib) @LDADD_FOR_TESTS_KLUDGE@
 
 noinst_PROGRAMS = $(TESTS)
 noinst_HEADERS = t-common.h
 
-t_lock_LDADD = $(gpg_error_lib) $(LIBMULTITHREAD)
-t_poll_LDADD = $(gpg_error_lib) $(LIBMULTITHREAD)
+t_lock_LDADD = $(LDADD) $(LIBMULTITHREAD)
+t_poll_LDADD = $(LDADD) $(LIBMULTITHREAD)

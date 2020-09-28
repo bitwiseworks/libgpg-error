@@ -3,12 +3,12 @@
 # This file is distributed under the same license as the libgpg-error package.
 # Yasuaki Taniguchi <yasuakit@gmail.com>, 2010.
 # Takeshi Hamasaki <hmatrjp@users.sourceforge.jp>, 2012.
-# NIIBE Yutaka <gniibe@fsij.org>, 2014, 2015, 2016, 2017.
+# NIIBE Yutaka <gniibe@fsij.org>, 2014, 2015, 2016, 2017, 2019, 2020.
 msgid ""
 msgstr ""
-"Project-Id-Version: libgpg-error 1.27\n"
+"Project-Id-Version: libgpg-error 1.36\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"PO-Revision-Date: 2017-03-06 20:25+0900\n"
+"PO-Revision-Date: 2020-01-23 13:06+0900\n"
 "Last-Translator: NIIBE Yutaka <gniibe@fsij.org>\n"
 "Language-Team: none\n"
 "Language: ja\n"
@@ -666,7 +666,7 @@ msgid "Wrong crypto context"
 msgstr "誤った暗号コンテクストです"
 
 msgid "Bad crypto context"
-msgstr "間違ったな暗号コンテクストです"
+msgstr "誤った暗号コンテクストです"
 
 msgid "Conflict in the crypto context"
 msgstr "暗号コンテクストが競合しています"
@@ -962,6 +962,24 @@ msgstr "後で再度試してください"
 msgid "Wrong name"
 msgstr "間違った名前です"
 
+msgid "Not authenticated"
+msgstr "認証されてません"
+
+msgid "Bad authentication"
+msgstr "誤った認証です"
+
+msgid "No Keybox daemon running"
+msgstr "Keyboxデーモンが動いていません"
+
+msgid "Keybox daemon error"
+msgstr "Keyboxデーモンエラーです"
+
+msgid "Service is not running"
+msgstr "サービスが動いていません"
+
+msgid "Service error"
+msgstr "サービスエラーです"
+
 msgid "System bug detected"
 msgstr "システムのバグが検出されました"
 
@@ -1074,7 +1092,7 @@ msgid "LDAP operations error"
 msgstr "LDAP操作エラーです"
 
 msgid "LDAP protocol error"
-msgstr "LDAPプロトコル違反"
+msgstr "LDAPプロトコルエラー"
 
 msgid "Time limit exceeded in LDAP"
 msgstr "LDAPで時間制限を越えました"
@@ -1280,6 +1298,99 @@ msgstr "ユーザ定義エラーコード 15"
 msgid "User defined error code 16"
 msgstr "ユーザ定義エラーコード 16"
 
+msgid "SQL success"
+msgstr "SQL 成功です"
+
+msgid "SQL error"
+msgstr "SQLエラーです"
+
+msgid "Internal logic error in SQL library"
+msgstr "SQLライブラリの内部論理エラー"
+
+msgid "Access permission denied (SQL)"
+msgstr "アクセス許可が拒否されました (SQL)"
+
+msgid "SQL abort was requested"
+msgstr "SQL中止が要求されました"
+
+msgid "SQL database file is locked"
+msgstr "SQLデータベースがロックされています"
+
+msgid "An SQL table in the database is locked"
+msgstr "データベースでSQLテーブルがロックされています"
+
+msgid "SQL library ran out of core"
+msgstr "SQLライブラリがコアを使い果たしました"
+
+msgid "Attempt to write a readonly SQL database"
+msgstr "読み出しのみのSQLデータベースに書き込もうとしました"
+
+msgid "SQL operation terminated by interrupt"
+msgstr "割り込みでSQL操作が終了しました"
+
+msgid "I/O error during SQL operation"
+msgstr "SQL操作中にI/Oエラー"
+
+msgid "SQL database disk image is malformed"
+msgstr "SQLデータベースのディスクイメージが壊れています"
+
+msgid "Unknown opcode in SQL file control"
+msgstr "SQLファイルコントロールに不明のオペコードです"
+
+msgid "Insertion failed because SQL database is full"
+msgstr "SQLデータベースがいっぱいで挿入が失敗しました"
+
+msgid "Unable to open the SQL database file"
+msgstr "SQLデータベースをオープンできません"
+
+msgid "SQL database lock protocol error"
+msgstr "SQLデータベース・ロック・プロトコルエラー"
+
+msgid "(internal SQL code: empty)"
+msgstr "(内部SQLコード: empty)"
+
+msgid "SQL database schema changed"
+msgstr "SQLデータベースのスキーマが変更されました"
+
+msgid "String or blob exceeds size limit (SQL)"
+msgstr "文字列かブロブがサイズ上限を超えました (SQL)"
+
+msgid "SQL abort due to constraint violation"
+msgstr "制約の違反のため SQL 中止です"
+
+msgid "Data type mismatch (SQL)"
+msgstr "データ型の不一致 (SQL)"
+
+msgid "SQL library used incorrectly"
+msgstr "SQLライブラリが誤って使われました"
+
+msgid "SQL library uses unsupported OS features"
+msgstr "SQLライブラリがサポートされていないOSの機能を使います"
+
+msgid "Authorization denied (SQL)"
+msgstr "認証が拒否されました (SQL)"
+
+msgid "(unused SQL code: format)"
+msgstr "(使われていないSQLコード: format)"
+
+msgid "SQL bind parameter out of range"
+msgstr "SQLのバインド・パラメータが範囲外です"
+
+msgid "File opened that is not an SQL database file"
+msgstr "SQLデータベース・ファイルではないファイルがオープンされました"
+
+msgid "Notifications from SQL logger"
+msgstr "SQLロガーからの通知"
+
+msgid "Warnings from SQL logger"
+msgstr "SQLロガーからの警告"
+
+msgid "SQL has another row ready"
+msgstr "SQLで別の行が準備できています"
+
+msgid "SQL has finished executing"
+msgstr "SQL実行が終わりました"
+
 msgid "System error w/o errno"
 msgstr "errno が無いシステムエラー"
 
@@ -1292,13 +1403,109 @@ msgstr "ファイル終端"
 msgid "Unknown error code"
 msgstr "不明なエラーコード"
 
-#, c-format
-msgid "Usage: %s GPG-ERROR [...]\n"
-msgstr "使用法: %s GPG-ERROR [...]\n"
+msgid "argument not expected"
+msgstr "引数は期待されていません"
+
+msgid "read error"
+msgstr "読み込みエラー"
+
+msgid "keyword too long"
+msgstr "キーワードが長すぎます"
+
+msgid "missing argument"
+msgstr "引数がありません"
+
+msgid "invalid argument"
+msgstr "無効な引数"
+
+msgid "invalid command"
+msgstr "無効なコマンド"
+
+msgid "invalid alias definition"
+msgstr "無効なエイリアス定義です"
+
+#, fuzzy
+#| msgid "LDAP operations error"
+msgid "permission error"
+msgstr "LDAP操作エラーです"
+
+msgid "out of core"
+msgstr "メモリがありません"
+
+#, fuzzy
+#| msgid "invalid command"
+msgid "invalid meta command"
+msgstr "無効なコマンド"
+
+#, fuzzy
+#| msgid "Unknown command"
+msgid "unknown meta command"
+msgstr "未知のコマンドです"
+
+#, fuzzy
+#| msgid "Unexpected IPC command"
+msgid "unexpected meta command"
+msgstr "予期しないIPCコマンドです"
+
+msgid "invalid option"
+msgstr "無効なオプション"
 
 #, c-format
-msgid "%s: warning: could not recognize %s\n"
-msgstr "%s: 警告: %s を認識できませんでした\n"
+msgid "missing argument for option \"%.50s\"\n"
+msgstr "オプション\"%.50s\"に引数がありません\n"
+
+#, c-format
+msgid "invalid argument for option \"%.50s\"\n"
+msgstr "オプション\"%.50s\"には無効な引数です\n"
+
+#, c-format
+msgid "option \"%.50s\" does not expect an argument\n"
+msgstr "オプション\"%.50s\"は引数をとりません\n"
+
+#, c-format
+msgid "invalid command \"%.50s\"\n"
+msgstr "無効なコマンド \"%.50s\"\n"
+
+#, c-format
+msgid "option \"%.50s\" is ambiguous\n"
+msgstr "オプション\"%.50s\"はあいまいです\n"
+
+#, c-format
+msgid "command \"%.50s\" is ambiguous\n"
+msgstr "コマンド\"%.50s\"はあいまいです\n"
+
+#, c-format
+msgid "invalid option \"%.50s\"\n"
+msgstr "無効なオプション \"%.50s\"\n"
+
+#, c-format
+msgid "Note: no default option file '%s'\n"
+msgstr ""
+
+#, c-format
+msgid "reading options from '%s'\n"
+msgstr ""
+
+#, c-format
+msgid "option file '%s': %s\n"
+msgstr ""
+
+#, c-format
+msgid "Note: ignoring option \"--%s\" due to global config\n"
+msgstr ""
+
+msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
+msgstr "バグは<https://bugs.gnupg.org>に報告してください。\n"
+
+#, c-format
+msgid "warning: could not recognize %s\n"
+msgstr "警告: %s を認識できませんでした\n"
+
+#~ msgid "out of core\n"
+#~ msgstr "メモリがありません\n"
+
+#~ msgid "Usage: %s GPG-ERROR [...]\n"
+#~ msgstr "使用法: %s GPG-ERROR [...]\n"
 
 #~ msgid "Keyring open"
 #~ msgstr "鍵リングオープン"

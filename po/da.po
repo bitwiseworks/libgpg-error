@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error 1.10\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"PO-Revision-Date: 2014-11-17 20:08+0100\n"
+"PO-Revision-Date: 2018-03-21 19:01+0100\n"
 "Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
 "Language-Team: Danish <debian-l10n-danish@lists.debian.org>\n"
 "Language: da\n"
@@ -990,6 +990,34 @@ msgstr ""
 msgid "Wrong name"
 msgstr "Ukendt navn"
 
+#, fuzzy
+#| msgid "Not enabled"
+msgid "Not authenticated"
+msgstr "Ikke aktiveret"
+
+#, fuzzy
+#| msgid "Unsupported protection"
+msgid "Bad authentication"
+msgstr "Ej understøttet beskyttelse"
+
+#, fuzzy
+#| msgid "No agent running"
+msgid "No Keybox daemon running"
+msgstr "Ingen agent kører"
+
+#, fuzzy
+#| msgid "SmartCard daemon error"
+msgid "Keybox daemon error"
+msgstr "SmartCard-dæmonfejl"
+
+msgid "Service is not running"
+msgstr ""
+
+#, fuzzy
+#| msgid "Keyserver error"
+msgid "Service error"
+msgstr "Nøgleserverfejl"
+
 msgid "System bug detected"
 msgstr ""
 
@@ -1434,6 +1462,105 @@ msgstr "Brugerdefineret fejlkode 15"
 msgid "User defined error code 16"
 msgstr "Brugerdefineret fejlkode 16"
 
+#, fuzzy
+#| msgid "Success"
+msgid "SQL success"
+msgstr "Lykkedes"
+
+#, fuzzy
+#| msgid "Syntax error"
+msgid "SQL error"
+msgstr "Syntaksfejl"
+
+msgid "Internal logic error in SQL library"
+msgstr ""
+
+msgid "Access permission denied (SQL)"
+msgstr ""
+
+msgid "SQL abort was requested"
+msgstr ""
+
+msgid "SQL database file is locked"
+msgstr ""
+
+msgid "An SQL table in the database is locked"
+msgstr ""
+
+msgid "SQL library ran out of core"
+msgstr ""
+
+msgid "Attempt to write a readonly SQL database"
+msgstr ""
+
+msgid "SQL operation terminated by interrupt"
+msgstr ""
+
+msgid "I/O error during SQL operation"
+msgstr ""
+
+msgid "SQL database disk image is malformed"
+msgstr ""
+
+msgid "Unknown opcode in SQL file control"
+msgstr ""
+
+msgid "Insertion failed because SQL database is full"
+msgstr ""
+
+msgid "Unable to open the SQL database file"
+msgstr ""
+
+#, fuzzy
+#| msgid "Protocol violation"
+msgid "SQL database lock protocol error"
+msgstr "Protokolovertrædelse"
+
+msgid "(internal SQL code: empty)"
+msgstr ""
+
+msgid "SQL database schema changed"
+msgstr ""
+
+msgid "String or blob exceeds size limit (SQL)"
+msgstr ""
+
+msgid "SQL abort due to constraint violation"
+msgstr ""
+
+msgid "Data type mismatch (SQL)"
+msgstr ""
+
+msgid "SQL library used incorrectly"
+msgstr ""
+
+msgid "SQL library uses unsupported OS features"
+msgstr ""
+
+msgid "Authorization denied (SQL)"
+msgstr ""
+
+msgid "(unused SQL code: format)"
+msgstr ""
+
+msgid "SQL bind parameter out of range"
+msgstr ""
+
+msgid "File opened that is not an SQL database file"
+msgstr ""
+
+msgid "Notifications from SQL logger"
+msgstr ""
+
+msgid "Warnings from SQL logger"
+msgstr ""
+
+msgid "SQL has another row ready"
+msgstr ""
+
+msgid "SQL has finished executing"
+msgstr ""
+
 msgid "System error w/o errno"
 msgstr "Systemfejl w/o errno"
 
@@ -1446,13 +1573,112 @@ msgstr "Slutning på fil"
 msgid "Unknown error code"
 msgstr "Ukendt fejlkode"
 
-#, c-format
-msgid "Usage: %s GPG-ERROR [...]\n"
-msgstr "Brug: %s GPG-ERROR [...]\n"
+msgid "argument not expected"
+msgstr "parameter var ikke forventet"
+
+msgid "read error"
+msgstr "læsefejl"
+
+msgid "keyword too long"
+msgstr "nøgleord er for langt"
+
+msgid "missing argument"
+msgstr "manglende parameter"
+
+#, fuzzy
+#| msgid "invalid value\n"
+msgid "invalid argument"
+msgstr "ugyldig værdi\n"
+
+msgid "invalid command"
+msgstr "ugyldig kommando"
+
+msgid "invalid alias definition"
+msgstr "ugyldig aliasdefinition"
+
+#, fuzzy
+#| msgid "Configuration error"
+msgid "permission error"
+msgstr "Konfigurationsfejl"
+
+msgid "out of core"
+msgstr "ikke nok kerne"
+
+#, fuzzy
+#| msgid "invalid command"
+msgid "invalid meta command"
+msgstr "ugyldig kommando"
+
+#, fuzzy
+#| msgid "Unknown command"
+msgid "unknown meta command"
+msgstr "Ukendt kommando"
+
+#, fuzzy
+#| msgid "Unexpected IPC command"
+msgid "unexpected meta command"
+msgstr "Uventet IPC-kommando"
+
+msgid "invalid option"
+msgstr "ugyldig indstilling"
 
 #, c-format
-msgid "%s: warning: could not recognize %s\n"
-msgstr "%s: advarsel: kunne ikke genkende %s\n"
+msgid "missing argument for option \"%.50s\"\n"
+msgstr "manglende parameter for indstilling »%.50s«\n"
+
+#, fuzzy, c-format
+#| msgid "missing argument for option \"%.50s\"\n"
+msgid "invalid argument for option \"%.50s\"\n"
+msgstr "manglende parameter for indstilling »%.50s«\n"
+
+#, c-format
+msgid "option \"%.50s\" does not expect an argument\n"
+msgstr "tilvalg »%.50s« forventer ikke et argument\n"
+
+#, c-format
+msgid "invalid command \"%.50s\"\n"
+msgstr "ugyldig kommando »%.50s«\n"
+
+#, c-format
+msgid "option \"%.50s\" is ambiguous\n"
+msgstr "tilvalg »%.50s« er tvetydigt\n"
+
+#, c-format
+msgid "command \"%.50s\" is ambiguous\n"
+msgstr "kommando »%.50s« er tvetydig\n"
+
+#, c-format
+msgid "invalid option \"%.50s\"\n"
+msgstr "ugyldigt tilvalg »%.50s«\n"
+
+#, c-format
+msgid "Note: no default option file '%s'\n"
+msgstr ""
+
+#, c-format
+msgid "reading options from '%s'\n"
+msgstr ""
+
+#, c-format
+msgid "option file '%s': %s\n"
+msgstr ""
+
+#, c-format
+msgid "Note: ignoring option \"--%s\" due to global config\n"
+msgstr ""
+
+msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
+msgstr ""
+
+#, c-format
+msgid "warning: could not recognize %s\n"
+msgstr "advarsel: kunne ikke genkende %s\n"
+
+#~ msgid "out of core\n"
+#~ msgstr "uden for kerne\n"
+
+#~ msgid "Usage: %s GPG-ERROR [...]\n"
+#~ msgstr "Brug: %s GPG-ERROR [...]\n"
 
 #, fuzzy
 #~| msgid "Resources exhausted"

@@ -19,7 +19,7 @@
 
 #include <stdarg.h>
 
-#include "../src/gpg-error.h"
+#include "../src/gpgrt.h"
 
 #ifndef PGM
 # error Macro PGM not defined.
@@ -32,6 +32,38 @@
 static int verbose;
 static int debug;
 static int errorcount;
+
+
+static void die (const char *format, ...) GPGRT_ATTR_NR_PRINTF(1,2);
+static void fail (const char *format, ...) GPGRT_ATTR_PRINTF(1,2);
+static void show (const char *format, ...) GPGRT_ATTR_PRINTF(1,2);
+
+
+static void *
+xmalloc (size_t n)
+{
+  char *p = gpgrt_malloc (n);
+  if (!p)
+    die ("out of core\n");
+  return p;
+}
+
+static char *
+xstrdup (const char *s)
+{
+  char *p = gpgrt_strdup (s);
+  if (!p)
+    die ("out of core\n");
+  return p;
+}
+
+static void
+xfree (void *p)
+{
+  if (p)
+    gpgrt_free (p);
+}
+
 
 
 static void
@@ -52,6 +84,8 @@ die (const char *format, ...)
 #ifdef HAVE_FLOCKFILE
   funlockfile (stderr);
 #endif
+  xfree (xstrdup (""));  /* To avoid compiler warnings.  */
+  xfree (xmalloc (16));  /* To avoid compiler warnings.  */
   exit (1);
 }
 

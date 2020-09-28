@@ -2,12 +2,12 @@
 # Copyright (C) 2012 Free Software Foundation, Inc.
 # This file is distributed under the same license as the libgpg-error package.
 #
-# Yuri Chornoivan <yurchor@ukr.net>, 2012, 2014, 2015.
+# Yuri Chornoivan <yurchor@ukr.net>, 2012, 2014, 2015, 2018, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error 1.7\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"PO-Revision-Date: 2015-07-12 16:21+0300\n"
+"PO-Revision-Date: 2020-02-17 18:28+0200\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <translation-team-uk@lists.sourceforge.net>\n"
 "Language: uk\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Lokalize 1.5\n"
+"X-Generator: Lokalize 20.03.70\n"
 
 msgid "Unspecified source"
 msgstr "Невказане джерело"
@@ -729,25 +729,19 @@ msgid "Bad octal character in S-expression"
 msgstr "Помилковий вісімковий символ у S-виразі"
 
 msgid "All subkeys are expired or revoked"
-msgstr ""
+msgstr "Строк дії усіх підключів вичерпано або їх відкликано"
 
-#, fuzzy
-#| msgid "Data not encrypted"
 msgid "Database is corrupted"
-msgstr "Дані не зашифровано"
+msgstr "Базу даних пошкоджено"
 
 msgid "Server indicated a failure"
-msgstr ""
+msgstr "Сервер сигналізує про помилку"
 
-#, fuzzy
-#| msgid "Unknown name"
 msgid "No name"
-msgstr "Невідома назва"
+msgstr "Немає назви"
 
-#, fuzzy
-#| msgid "No public key"
 msgid "No key"
-msgstr "Немає відкритого ключа"
+msgstr "Немає ключа"
 
 msgid "Legacy key"
 msgstr "Застарілий ключ"
@@ -858,10 +852,10 @@ msgid "Invalid lock object"
 msgstr "Некоректний об’єкт блокування"
 
 msgid "True"
-msgstr ""
+msgstr "Так"
 
 msgid "False"
-msgstr ""
+msgstr "Ні"
 
 msgid "General IPC error"
 msgstr "Загальна помилка IPC"
@@ -935,104 +929,92 @@ msgstr "Помилка у параметрі IPC"
 msgid "Unknown IPC inquire"
 msgstr "Невідомий запит IPC"
 
-#, fuzzy
-#| msgid "No crypto engine"
 msgid "Crypto engine too old"
-msgstr "Немає рушія шифрування"
+msgstr "Рушій шифрування є надто старим"
 
 msgid "Screen or window too small"
-msgstr ""
+msgstr "Екран або вікно є надто малим"
 
 msgid "Screen or window too large"
-msgstr ""
+msgstr "Екран або вікно є надто великим"
 
 msgid "Required environment variable not set"
-msgstr ""
+msgstr "Не встановлено обов'язкової змінної середовища"
 
-#, fuzzy
-#| msgid "Already exists (LDAP)"
 msgid "User ID already exists"
-msgstr "Вже існує (LDAP)"
+msgstr "Ідентифікатор користувача вже існує"
 
-#, fuzzy
-#| msgid "Already exists (LDAP)"
 msgid "Name already exists"
-msgstr "Вже існує (LDAP)"
+msgstr "Назва вже існує"
 
-#, fuzzy
-#| msgid "Duplicated value"
 msgid "Duplicated name"
-msgstr "Дублювання значення"
+msgstr "Дублювання назви"
 
-#, fuzzy
-#| msgid "Certificate too young"
 msgid "Object is too young"
-msgstr "Сертифікат є надто новим"
+msgstr "Об'єкт є надто новим"
 
-#, fuzzy
-#| msgid "Provided object is too short"
 msgid "Object is too old"
-msgstr "Наданий об’єкт є надто коротким"
+msgstr "Об'єкт є надто старим"
 
-#, fuzzy
-#| msgid "Unknown name"
 msgid "Unknown flag"
-msgstr "Невідома назва"
+msgstr "Невідомий прапорець"
 
-#, fuzzy
-#| msgid "Invalid operation code"
 msgid "Invalid execution order"
-msgstr "Некоректний код дії"
+msgstr "Некоректна послідовність виконання"
 
 msgid "Already fetched"
-msgstr ""
+msgstr "Вже отримано"
 
 msgid "Try again later"
-msgstr ""
+msgstr "Повторіть спробу пізніше"
 
-#, fuzzy
-#| msgid "Unknown name"
 msgid "Wrong name"
-msgstr "Невідома назва"
+msgstr "Помилкова назва"
+
+msgid "Not authenticated"
+msgstr "Розпізнавання не пройдено"
+
+msgid "Bad authentication"
+msgstr "Помилка розпізнавання"
+
+msgid "No Keybox daemon running"
+msgstr "Фонову службу Keybox не запущено"
+
+msgid "Keybox daemon error"
+msgstr "Помилка фонової служби Keybox"
+
+msgid "Service is not running"
+msgstr "Службу не запущено"
+
+msgid "Service error"
+msgstr "Помилка служби"
 
 msgid "System bug detected"
-msgstr ""
+msgstr "Виявлено ваду у системі"
 
-#, fuzzy
-#| msgid "Unknown system error"
 msgid "Unknown DNS error"
-msgstr "Невідома системна помилка"
+msgstr "Невідома помилка DNS"
 
-#, fuzzy
-#| msgid "Invalid OID string"
 msgid "Invalid DNS section"
-msgstr "Некоректний рядок OID"
+msgstr "Некоректний розділ DNS"
 
-#, fuzzy
-#| msgid "Invalid S-expression"
 msgid "Invalid textual address form"
-msgstr "Некоректний S-вираз"
+msgstr "Некоректний текстовий формат адреси"
 
-#, fuzzy
-#| msgid "Missing issuer certificate"
 msgid "Missing DNS query packet"
-msgstr "Не вистачає сертифіката видавця"
+msgstr "Не вистачає пакета запиту до DNS"
 
 msgid "Missing DNS answer packet"
-msgstr ""
+msgstr "Не вистачає пакета із відповіддю DNS"
 
 msgid "Connection closed in DNS"
-msgstr ""
+msgstr "З'єднання закрито у DNS"
 
-#, fuzzy
-#| msgid "Decryption failed"
 msgid "Verification failed in DNS"
-msgstr "Спроба розшифрування зазнала невдачі"
+msgstr "Не пройдено перевірку на DNS"
 
-#, fuzzy
-#| msgid "Timeout"
 msgid "DNS Timeout"
-msgstr "Час очікування"
+msgstr "Перевищено час очікування на DNS"
 
 msgid "General LDAP error"
 msgstr "Загальна помилка LDAP"
@@ -1325,6 +1307,99 @@ msgstr "Визначений користувачем код помилки 15"
 msgid "User defined error code 16"
 msgstr "Визначений користувачем код помилки 16"
 
+msgid "SQL success"
+msgstr "Успіх SQL"
+
+msgid "SQL error"
+msgstr "Помилка SQL"
+
+msgid "Internal logic error in SQL library"
+msgstr "Внутрішня помилка логіки у бібліотеці SQL"
+
+msgid "Access permission denied (SQL)"
+msgstr "Заборонено доступ за правами (SQL)"
+
+msgid "SQL abort was requested"
+msgstr "Надійшов запит на переривання роботи SQL"
+
+msgid "SQL database file is locked"
+msgstr "Файл бази даних SQL заблоковано"
+
+msgid "An SQL table in the database is locked"
+msgstr "Таблицю SQL у базі даних заблоковано"
+
+msgid "SQL library ran out of core"
+msgstr "Вихід за межі області пам'яті у бібліотеці SQL"
+
+msgid "Attempt to write a readonly SQL database"
+msgstr "Спроба запису до придатної лише до читання бази даних SQL"
+
+msgid "SQL operation terminated by interrupt"
+msgstr "SQL operation terminated by interrupt"
+
+msgid "I/O error during SQL operation"
+msgstr "Помилка введення-виведення під час виконання дії SQL"
+
+msgid "SQL database disk image is malformed"
+msgstr "Образ диска бази даних SQL має помилкове форматування"
+
+msgid "Unknown opcode in SQL file control"
+msgstr "Невідомий код дії у керування файлами SQL"
+
+msgid "Insertion failed because SQL database is full"
+msgstr "Не вдалося вставити запис, оскільки базу даних SQL переповнено"
+
+msgid "Unable to open the SQL database file"
+msgstr "Не вдалося відкрити файл бази даних SQL"
+
+msgid "SQL database lock protocol error"
+msgstr "Помилка протоколу блокування бази даних SQL"
+
+msgid "(internal SQL code: empty)"
+msgstr "(внутрішній код SQL: порожньо)"
+
+msgid "SQL database schema changed"
+msgstr "Змінено структуру бази даних SQL"
+
+msgid "String or blob exceeds size limit (SQL)"
+msgstr "Перевищення обмеження на розмір рядка або двійкового об'єкта (SQL)"
+
+msgid "SQL abort due to constraint violation"
+msgstr "Переривання роботи SQL через перевищення обмежень"
+
+msgid "Data type mismatch (SQL)"
+msgstr "Невідповідність типів даних (SQL)"
+
+msgid "SQL library used incorrectly"
+msgstr "Неправильне використання бібліотеки SQL"
+
+msgid "SQL library uses unsupported OS features"
+msgstr "Бібліотека SQL намагається використати непідтримувані можливості ОС"
+
+msgid "Authorization denied (SQL)"
+msgstr "Відмовлено в уповноваженні (SQL)"
+
+msgid "(unused SQL code: format)"
+msgstr "(невикористаний код SQL: формат)"
+
+msgid "SQL bind parameter out of range"
+msgstr "Параметр прив'язки SQL має значення поза межами припустимого діапазону"
+
+msgid "File opened that is not an SQL database file"
+msgstr "Відкрито файл, який не є файлом бази даних SQL"
+
+msgid "Notifications from SQL logger"
+msgstr "Сповіщення від засобу журналювання SQL"
+
+msgid "Warnings from SQL logger"
+msgstr "Попередження від засобу журналювання SQL"
+
+msgid "SQL has another row ready"
+msgstr "У SQL готовий ще один рядок"
+
+msgid "SQL has finished executing"
+msgstr "Виконання коду SQL завершено"
+
 msgid "System error w/o errno"
 msgstr "Системна помилка без номера"
 
@@ -1337,30 +1412,103 @@ msgstr "Кінець файла"
 msgid "Unknown error code"
 msgstr "Помилка з невідомим кодом"
 
+msgid "argument not expected"
+msgstr "неочікуваний аргумент"
+
+msgid "read error"
+msgstr "помилка читання"
+
+msgid "keyword too long"
+msgstr "занадто довге ключове слово"
+
+msgid "missing argument"
+msgstr "не вистачає аргументу"
+
+msgid "invalid argument"
+msgstr "некоректний аргумент"
+
+msgid "invalid command"
+msgstr "некоректна команда"
+
+msgid "invalid alias definition"
+msgstr "некоректне визначення замінника"
+
+#, fuzzy
+#| msgid "LDAP operations error"
+msgid "permission error"
+msgstr "Помилка дій LDAP"
+
+msgid "out of core"
+msgstr "вихід за межі області пам’яті"
+
+#, fuzzy
+#| msgid "invalid command"
+msgid "invalid meta command"
+msgstr "некоректна команда"
+
+#, fuzzy
+#| msgid "Unknown command"
+msgid "unknown meta command"
+msgstr "Невідома команда"
+
+#, fuzzy
+#| msgid "Unexpected IPC command"
+msgid "unexpected meta command"
+msgstr "Неочікувана команда IPC"
+
+msgid "invalid option"
+msgstr "некоректний параметр"
+
 #, c-format
-msgid "Usage: %s GPG-ERROR [...]\n"
-msgstr "Користування: %s ПОМИЛКА-GPG [...]\n"
+msgid "missing argument for option \"%.50s\"\n"
+msgstr "не вказано аргументу до параметра «%.50s»\n"
 
 #, c-format
-msgid "%s: warning: could not recognize %s\n"
-msgstr "%s: попередження: не вдалося розпізнати %s\n"
+msgid "invalid argument for option \"%.50s\"\n"
+msgstr "некоректний аргумент параметра «%.50s»\n"
 
-#, fuzzy
-#~| msgid "Resources exhausted"
-#~ msgid "LCUP Resources exhausted"
-#~ msgstr "Вичерпано ресурси"
+#, c-format
+msgid "option \"%.50s\" does not expect an argument\n"
+msgstr "для параметра «%.50s» аргументи не потрібно вказувати\n"
 
-#, fuzzy
-#~| msgid "Invalid data"
-#~ msgid "LCUP Invalid data"
-#~ msgstr "Некоректні дані"
+#, c-format
+msgid "invalid command \"%.50s\"\n"
+msgstr "некоректна команда «%.50s»\n"
 
-#, fuzzy
-#~| msgid "General error"
-#~ msgid "LDAP Other general error"
-#~ msgstr "Загальна помилка"
+#, c-format
+msgid "option \"%.50s\" is ambiguous\n"
+msgstr "параметр «%.50s» є неоднозначним\n"
 
-#, fuzzy
-#~| msgid "dirmngr error"
-#~ msgid "Encoding error"
-#~ msgstr "Помилка dirmngr"
+#, c-format
+msgid "command \"%.50s\" is ambiguous\n"
+msgstr "команда «%.50s» є неоднозначною\n"
+
+#, c-format
+msgid "invalid option \"%.50s\"\n"
+msgstr "некоректний параметр «%.50s»\n"
+
+#, c-format
+msgid "Note: no default option file '%s'\n"
+msgstr ""
+
+#, c-format
+msgid "reading options from '%s'\n"
+msgstr ""
+
+#, c-format
+msgid "option file '%s': %s\n"
+msgstr ""
+
+#, c-format
+msgid "Note: ignoring option \"--%s\" due to global config\n"
+msgstr ""
+
+msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
+msgstr "Будь ласка, повідомляйте про помилки тут: <https://bugs.gnupg.org>.\n"
+
+#, c-format
+msgid "warning: could not recognize %s\n"
+msgstr "попередження: не вдалося розпізнати %s\n"
+
+#~ msgid "out of core\n"
+#~ msgstr "вихід за межі області пам’яті\n"

@@ -49,7 +49,7 @@
       .B whateever you want
       @end ifset
 
-    alternativly a special comment may be used:
+    alternatively a special comment may be used:
 
       @c man:.B whatever you want
 
@@ -357,7 +357,7 @@ ascii_strupr (char *string)
 const char *
 isodatestring (void)
 {
-  static char buffer[11+5];
+  static char buffer[36];
   struct tm *tp;
   time_t atime;
 
@@ -485,6 +485,9 @@ static void
 evaluate_conditions (const char *fname, int lnr)
 {
   int i;
+
+  (void)fname;
+  (void)lnr;
 
   /* for (i=0; i < condition_stack_idx; i++) */
   /*   inf ("%s:%d:   stack[%d] %s %s %c", */
@@ -702,7 +705,7 @@ write_th (FILE *fp)
 
 
 /* Process the texinfo command COMMAND (without the leading @) and
-   write output if needed to FP. REST is the remainer of the line
+   write output if needed to FP. REST is the remainder of the line
    which should either point to an opening brace or to a white space.
    The function returns the number of characters already processed
    from REST.  LEN is the usable length of REST.  TABLE_LEVEL is used to
@@ -722,7 +725,8 @@ proc_texi_cmd (FILE *fp, const char *command, const char *rest, size_t len,
     { "url",     0, "\\fB", "\\fR" },
     { "sc",      0, "\\fB", "\\fR" },
     { "var",     0, "\\fI", "\\fR" },
-    { "samp",    0, "\\(aq", "\\(aq"  },
+    { "samp",    0, "\\(oq", "\\(cq"  },
+    { "kbd",     0, "\\(oq", "\\(cq"  },
     { "file",    0, "\\(oq\\fI","\\fR\\(cq" },
     { "env",     0, "\\(oq\\fI","\\fR\\(cq" },
     { "acronym", 0 },
@@ -857,18 +861,20 @@ proc_texi_cmd (FILE *fp, const char *command, const char *rest, size_t len,
                 }
               else
                 {
-                  size_t len = s - (rest + 1);
+                  size_t rlen = s - (rest + 1);
                   macro_t m;
 
                   for (m = variablelist; m; m = m->next)
-                    if (strlen (m->name) == len
-                        &&!strncmp (m->name, rest+1, len))
-                      break;
+                    {
+                      if (strlen (m->name) == rlen
+                          && !strncmp (m->name, rest+1, rlen))
+                        break;
+                    }
                   if (m)
                     fputs (m->value, fp);
                   else
                     inf ("texinfo variable '%.*s' is not set",
-                         (int)len, rest+1);
+                         (int)rlen, rest+1);
                 }
             }
           break;

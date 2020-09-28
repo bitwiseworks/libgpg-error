@@ -46,7 +46,6 @@
 #endif /*!HAVE_W32_SYSTEM*/
 #include <unistd.h>
 #include <fcntl.h>
-#include <assert.h>
 /* #include <execinfo.h> */
 
 #define _GPGRT_NEED_AFLOCAL 1
@@ -107,6 +106,14 @@ static int missing_lf;
 static int errorcount;
 
 
+/* An object to convey data to the fmt_string_filter.  */
+struct fmt_string_filter_s
+{
+  char *last_result;
+};
+
+
+
 /* Get the error count as maintained by the log fucntions.  With CLEAR
  * set reset the counter.  */
 int
@@ -119,11 +126,13 @@ _gpgrt_get_errorcount (int clear)
 }
 
 
-/* Increment the error count as maintainer by the log functions.  */
+/* Increment the error count as maintained by the log functions.  */
 void
 _gpgrt_inc_errorcount (void)
 {
-   errorcount++;
+  /* Protect against counter overflow.  */
+  if (errorcount < 30000)
+    errorcount++;
 }
 
 
@@ -248,9 +257,10 @@ fun_writer (void *cookie_arg, const void *buffer, size_t size)
 #ifndef HAVE_W32_SYSTEM
           memset (&srvr_addr, 0, sizeof srvr_addr);
           srvr_addr_un.sun_family = af;
-          if (!*name && (name = socket_dir_cb ()) && *name)
+          if (!*name)
             {
-              if (strlen (name) + 7 < sizeof (srvr_addr_un.sun_path)-1)
+              if ((name = socket_dir_cb ()) && *name
+                  && strlen (name) + 7 < sizeof (srvr_addr_un.sun_path)-1)
                 {
                   strncpy (srvr_addr_un.sun_path,
                            name, sizeof (srvr_addr_un.sun_path)-1);
@@ -263,7 +273,7 @@ fun_writer (void *cookie_arg, const void *buffer, size_t size)
             }
           else
             {
-              if (*name && strlen (name) < sizeof (srvr_addr_un.sun_path)-1)
+              if (strlen (name) < sizeof (srvr_addr_un.sun_path)-1)
                 {
                   strncpy (srvr_addr_un.sun_path,
                            name, sizeof (srvr_addr_un.sun_path)-1);
@@ -455,10 +465,10 @@ fun_closer (void *cookie_arg)
 /* Common function to either set the logging to a file or a file
    descriptor. */
 static void
-set_file_fd (const char *name, int fd)
+set_file_fd (const char *name, int fd, estream_t stream)
 {
   estream_t fp;
-  int want_socket;
+  int want_socket = 0;
 #ifdef HAVE_W32CE_SYSTEM
   int use_writefile = 0;
 #endif
@@ -472,6 +482,13 @@ set_file_fd (const char *name, int fd)
       logstream = NULL;
     }
 
+  if (stream)
+    {
+      /* We don't use a cookie to log directly to a stream.  */
+      fp = stream;
+      goto leave;
+    }
+
   /* Figure out what kind of logging we want.  */
   if (name && !strcmp (name, "-"))
     {
@@ -479,7 +496,6 @@ set_file_fd (const char *name, int fd)
       fd = _gpgrt_fileno (es_stderr);
     }
 
-  want_socket = 0;
   if (name && !strncmp (name, "tcp://", 6) && name[6])
     want_socket = 1;
 #ifndef HAVE_W32_SYSTEM
@@ -541,6 +557,7 @@ set_file_fd (const char *name, int fd)
   if (!fp)
     fp = es_stderr;
 
+ leave:
   _gpgrt_setvbuf (fp, NULL, _IOLBF, 0);
 
   logstream = fp;
@@ -559,27 +576,28 @@ set_file_fd (const char *name, int fd)
  * "socket:///home/foo/mylogs" may be used to write the logging to the
  * socket "/home/foo/mylogs".  If the connection to the socket fails
  * or a write error is detected, the function writes to stderr and
- * tries the next time again to connect the socket.
+ * tries the next time again to connect the socket.  Calling this
+ * function with (NULL, NULL, -1) sets the default sink.
  * Warning: This function is not thread-safe.
  */
 void
 _gpgrt_log_set_sink (const char *name, estream_t stream, int fd)
 {
   if (name && !stream && fd == -1)
-    set_file_fd (name, -1);
-  else if (!name && !stream)
+    set_file_fd (name, -1, NULL);
+  else if (!name && !stream && fd != -1)
     {
       if (!_gpgrt_fd_valid_p (fd))
         _gpgrt_log_fatal ("gpgrt_log_set_sink: fd is invalid: %s\n",
                      strerror (errno));
-      set_file_fd (NULL, fd);
+      set_file_fd (NULL, fd, NULL);
     }
   else if (!name && stream && fd == -1)
     {
-      _gpgrt_log_fatal ("gpgrt_log_set_sink: stream arg not yet supported\n");
+      set_file_fd (NULL, -1, stream);
     }
   else /* default */
-    set_file_fd ("-", -1);
+    set_file_fd ("-", -1, NULL);
 }
 
 
@@ -674,9 +692,104 @@ _gpgrt_log_get_stream ()
     {
       /* Make sure a log stream has been set.  */
       _gpgrt_log_set_sink (NULL, NULL, -1);
-      assert (logstream);
+      if (!logstream)
+        {
+          fputs ("gpgrt fatal: failed to init log stream\n", stderr);
+          _gpgrt_abort ();
+        }
     }
   return logstream;
+}
+
+
+/* A filter used with the fprintf_sf function to sanitize the args for
+ * "%s" format specifiers.  */
+static char *
+fmt_string_filter (const char *string, int no, void *opaque)
+{
+  struct fmt_string_filter_s *state = opaque;
+  const unsigned char *p;
+  size_t buflen;
+  char *d;
+  int any;
+
+  if (no == -1)
+    {
+      /* The printf engine asked us to release resources.  */
+      if (state->last_result)
+        {
+          _gpgrt_free (state->last_result);
+          state->last_result = NULL;
+        }
+      return NULL;
+    }
+
+  if (!string)
+    return NULL; /* Nothing to filter - printf handles NULL nicely.  */
+
+  /* Check whether escaping is needed and count needed length. */
+  any = 0;
+  buflen = 1;
+  for (p = (const unsigned char *)string; *p; p++)
+    {
+      switch (*p)
+        {
+        case '\n':
+        case '\r':
+        case '\f':
+        case '\v':
+        case '\b':
+        case '\t':
+        case '\a':
+        case '\\':
+          buflen += 2;
+          any = 1;
+          break;
+        default:
+          if (*p < 0x20 || *p == 0x7f)
+            {
+              buflen += 5;
+              any = 1;
+            }
+          else
+            buflen++;
+        }
+    }
+  if (!any)
+    return (char*)string;  /* Nothing to escape.  */
+
+  /* Create a buffer and escape the input.  */
+  _gpgrt_free (state->last_result);
+  state->last_result = _gpgrt_malloc (buflen);
+  if (!state->last_result)
+    return "[out_of_core_in_format_string_filter]";
+
+  d = state->last_result;
+  for (p = (const unsigned char *)string; *p; p++)
+    {
+      switch (*p)
+        {
+        case '\n': *d++ = '\\'; *d++ = 'n'; break;
+        case '\r': *d++ = '\\'; *d++ = 'r'; break;
+        case '\f': *d++ = '\\'; *d++ = 'f'; break;
+        case '\v': *d++ = '\\'; *d++ = 'v'; break;
+        case '\b': *d++ = '\\'; *d++ = 'b'; break;
+        case '\t': *d++ = '\\'; *d++ = 't'; break;
+        case '\a': *d++ = '\\'; *d++ = 'a'; break;
+        case '\\': *d++ = '\\'; *d++ = '\\'; break;
+
+        default:
+          if (*p < 0x20 || *p == 0x7f)
+            {
+              snprintf (d, 5, "\\x%02x", *p);
+              d += 4;
+            }
+          else
+            *d++ = *p;
+        }
+    }
+  *d = 0;
+  return state->last_result;
 }
 
 
@@ -687,7 +800,7 @@ print_prefix (int level, int leading_backspace)
   int rc;
   int length = 0;
 
-  if (level != GPGRT_LOG_CONT)
+  if (level != GPGRT_LOGLVL_CONT)
     { /* Note this does not work for multiple line logging as we would
        * need to print to a buffer first */
       if (with_time && !force_prefixes)
@@ -740,20 +853,20 @@ print_prefix (int level, int leading_backspace)
 
   switch (level)
     {
-    case GPGRT_LOG_BEGIN: break;
-    case GPGRT_LOG_CONT: break;
-    case GPGRT_LOG_INFO: break;
-    case GPGRT_LOG_WARN: break;
-    case GPGRT_LOG_ERROR: break;
-    case GPGRT_LOG_FATAL:
+    case GPGRT_LOGLVL_BEGIN: break;
+    case GPGRT_LOGLVL_CONT: break;
+    case GPGRT_LOGLVL_INFO: break;
+    case GPGRT_LOGLVL_WARN: break;
+    case GPGRT_LOGLVL_ERROR: break;
+    case GPGRT_LOGLVL_FATAL:
       _gpgrt_fputs_unlocked ("Fatal: ", logstream);
       length += 7;
       break;
-    case GPGRT_LOG_BUG:
+    case GPGRT_LOGLVL_BUG:
       _gpgrt_fputs_unlocked ("Ohhhh jeeee: ", logstream);
       length += 13;
       break;
-    case GPGRT_LOG_DEBUG:
+    case GPGRT_LOGLVL_DEBUG:
       _gpgrt_fputs_unlocked ("DBG: ", logstream);
       length += 5;
       break;
@@ -795,11 +908,15 @@ _gpgrt_logv_internal (int level, int ignore_arg_ptr, const char *extrastring,
       /* Make sure a log stream has been set.  */
       _gpgrt_log_set_sink (NULL, NULL, -1);
 #endif
-      assert (logstream);
+      if (!logstream)
+        {
+          fputs ("gpgrt fatal: failed to init log stream\n", stderr);
+          _gpgrt_abort ();
+        }
     }
 
   _gpgrt_flockfile (logstream);
-  if (missing_lf && level != GPGRT_LOG_CONT)
+  if (missing_lf && level != GPGRT_LOGLVL_CONT)
     _gpgrt_putc_unlocked ('\n', logstream );
   missing_lf = 0;
 
@@ -838,7 +955,10 @@ _gpgrt_logv_internal (int level, int ignore_arg_ptr, const char *extrastring,
         }
       else
         {
-          rc = _gpgrt_vfprintf_unlocked (logstream, fmt, arg_ptr);
+          struct fmt_string_filter_s sf = {NULL};
+
+          rc = _gpgrt_vfprintf_unlocked (logstream, fmt_string_filter, &sf,
+                                         fmt, arg_ptr);
           if (rc > 0)
             length += rc;
         }
@@ -903,14 +1023,14 @@ _gpgrt_logv_internal (int level, int ignore_arg_ptr, const char *extrastring,
         }
     }
 
-  if (level == GPGRT_LOG_FATAL)
+  if (level == GPGRT_LOGLVL_FATAL)
     {
       if (missing_lf)
         _gpgrt_putc_unlocked ('\n', logstream);
       _gpgrt_funlockfile (logstream);
       exit (2);
     }
-  else if (level == GPGRT_LOG_BUG)
+  else if (level == GPGRT_LOGLVL_BUG)
     {
       if (missing_lf)
         _gpgrt_putc_unlocked ('\n', logstream );
@@ -928,18 +1048,14 @@ _gpgrt_logv_internal (int level, int ignore_arg_ptr, const char *extrastring,
       /*     for (btidx=0; btidx < btlen; btidx++) */
       /*       log_debug ("[%d] %s\n", btidx, btstr[btidx]); */
       /* } */
-      abort ();
+      _gpgrt_abort ();
     }
   else
     _gpgrt_funlockfile (logstream);
 
   /* Bumb the error counter for log_error.  */
-  if (level == GPGRT_LOG_ERROR)
-    {
-      /* Protect against counter overflow.  */
-      if (errorcount < 30000)
-        errorcount++;
-    }
+  if (level == GPGRT_LOGLVL_ERROR)
+    _gpgrt_inc_errorcount ();
 
   return length;
 }
@@ -1002,7 +1118,7 @@ _gpgrt_log_info (const char *fmt, ...)
   va_list arg_ptr ;
 
   va_start (arg_ptr, fmt);
-  _gpgrt_logv_internal (GPGRT_LOG_INFO, 0, NULL, NULL, fmt, arg_ptr);
+  _gpgrt_logv_internal (GPGRT_LOGLVL_INFO, 0, NULL, NULL, fmt, arg_ptr);
   va_end (arg_ptr);
 }
 
@@ -1013,7 +1129,7 @@ _gpgrt_log_error (const char *fmt, ...)
   va_list arg_ptr ;
 
   va_start (arg_ptr, fmt);
-  _gpgrt_logv_internal (GPGRT_LOG_ERROR, 0, NULL, NULL, fmt, arg_ptr);
+  _gpgrt_logv_internal (GPGRT_LOGLVL_ERROR, 0, NULL, NULL, fmt, arg_ptr);
   va_end (arg_ptr);
 }
 
@@ -1024,9 +1140,9 @@ _gpgrt_log_fatal (const char *fmt, ...)
   va_list arg_ptr ;
 
   va_start (arg_ptr, fmt);
-  _gpgrt_logv_internal (GPGRT_LOG_FATAL, 0, NULL, NULL, fmt, arg_ptr);
+  _gpgrt_logv_internal (GPGRT_LOGLVL_FATAL, 0, NULL, NULL, fmt, arg_ptr);
   va_end (arg_ptr);
-  abort (); /* Never called; just to make the compiler happy.  */
+  _gpgrt_abort (); /* Never called; just to make the compiler happy.  */
 }
 
 
@@ -1036,9 +1152,9 @@ _gpgrt_log_bug (const char *fmt, ...)
   va_list arg_ptr ;
 
   va_start (arg_ptr, fmt);
-  _gpgrt_logv_internal (GPGRT_LOG_BUG, 0, NULL, NULL, fmt, arg_ptr);
+  _gpgrt_logv_internal (GPGRT_LOGLVL_BUG, 0, NULL, NULL, fmt, arg_ptr);
   va_end (arg_ptr);
-  abort (); /* Never called; just to make the compiler happy.  */
+  _gpgrt_abort (); /* Never called; just to make the compiler happy.  */
 }
 
 
@@ -1048,7 +1164,7 @@ _gpgrt_log_debug (const char *fmt, ...)
   va_list arg_ptr;
 
   va_start (arg_ptr, fmt);
-  _gpgrt_logv_internal (GPGRT_LOG_DEBUG, 0, NULL, NULL, fmt, arg_ptr);
+  _gpgrt_logv_internal (GPGRT_LOGLVL_DEBUG, 0, NULL, NULL, fmt, arg_ptr);
   va_end (arg_ptr);
 }
 
@@ -1062,7 +1178,7 @@ _gpgrt_log_debug_string (const char *string, const char *fmt, ...)
   va_list arg_ptr;
 
   va_start (arg_ptr, fmt);
-  _gpgrt_logv_internal (GPGRT_LOG_DEBUG, 0, string, NULL, fmt, arg_ptr);
+  _gpgrt_logv_internal (GPGRT_LOGLVL_DEBUG, 0, string, NULL, fmt, arg_ptr);
   va_end (arg_ptr);
 }
 
@@ -1073,7 +1189,8 @@ _gpgrt_log_printf (const char *fmt, ...)
   va_list arg_ptr;
 
   va_start (arg_ptr, fmt);
-  _gpgrt_logv_internal (fmt ? GPGRT_LOG_CONT : GPGRT_LOG_BEGIN, 0, NULL, NULL, fmt, arg_ptr);
+  _gpgrt_logv_internal (fmt ? GPGRT_LOGLVL_CONT : GPGRT_LOGLVL_BEGIN,
+                        0, NULL, NULL, fmt, arg_ptr);
   va_end (arg_ptr);
 }
 
@@ -1083,14 +1200,15 @@ _gpgrt_log_printf (const char *fmt, ...)
 void
 _gpgrt_log_flush (void)
 {
-  do_log_ignore_arg (GPGRT_LOG_CONT, NULL);
+  do_log_ignore_arg (GPGRT_LOGLVL_CONT, NULL);
 }
 
 
 /* Print a hexdump of (BUFFER,LENGTH).  With FMT passed as NULL print
- * just the raw dump, with FMT being an empty string, print a trailing
- * linefeed, otherwise print an entire debug line with the expanded
- * FMT followed by a possible wrapped hexdump and a final LF.  */
+ * just the raw dump (in this case ARG_PTR is not used), with FMT
+ * being an empty string, print a trailing linefeed, otherwise print
+ * an entire debug line with the expanded FMT followed by a possible
+ * wrapped hexdump and a final LF.  */
 void
 _gpgrt_logv_printhex (const void *buffer, size_t length,
                       const char *fmt, va_list arg_ptr)
@@ -1102,7 +1220,7 @@ _gpgrt_logv_printhex (const void *buffer, size_t length,
   /* FIXME: This printing is not yet protected by _gpgrt_flockfile.  */
   if (fmt && *fmt)
     {
-      _gpgrt_logv_internal (GPGRT_LOG_DEBUG, 0, NULL, NULL, fmt, arg_ptr);
+      _gpgrt_logv_internal (GPGRT_LOGLVL_DEBUG, 0, NULL, NULL, fmt, arg_ptr);
       wrap = 1;
     }
 
@@ -1148,7 +1266,16 @@ _gpgrt_log_printhex (const void *buffer, size_t length,
       va_end (arg_ptr);
     }
   else
-    _gpgrt_logv_printhex (buffer, length, NULL, NULL);
+    {
+      /* va_list is not necessary a pointer and thus we can't use NULL
+       * because that would conflict with platforms using a straight
+       * struct for it (e.g. arm64).  We use a dummy variable instead;
+       * the static is a simple way zero it out so to not get
+       * complains about uninitialized use.  */
+      static va_list dummy_argptr;
+
+      _gpgrt_logv_printhex (buffer, length, NULL, dummy_argptr);
+    }
 }
 
 
@@ -1164,7 +1291,7 @@ _gpgrt_logv_clock (const char *fmt, va_list arg_ptr)
 
   if (clock_gettime (CLOCK_REALTIME, &tv))
     {
-      log_debug ("error getting the realtime clock value\n");
+      _gpgrt_log_debug ("error getting the realtime clock value\n");
       return;
     }
   now = tv.tv_sec * 1000000000ull;
@@ -1174,13 +1301,14 @@ _gpgrt_logv_clock (const char *fmt, va_list arg_ptr)
     initial = now;
 
   snprintf (clockbuf, sizeof clockbuf, "[%6llu] ", (now - initial)/1000);
-  _gpgrt_logv_internal (GPGRT_LOG_DEBUG, 0, NULL, clockbuf, fmt, arg_ptr);
+  _gpgrt_logv_internal (GPGRT_LOGLVL_DEBUG, 0, NULL, clockbuf, fmt, arg_ptr);
 
 #else /*!ENABLE_LOG_CLOCK*/
 
   /* You may need to link with -ltr to use the above code.  */
 
-  _gpgrt_logv_internal (GPGRT_LOG_DEBUG, 0, NULL, "[no clock] ", fmt, arg_ptr);
+  _gpgrt_logv_internal (GPGRT_LOGLVL_DEBUG,
+                        0, NULL, "[no clock] ", fmt, arg_ptr);
 
 #endif  /*!ENABLE_LOG_CLOCK*/
 }
@@ -1203,11 +1331,11 @@ _gpgrt__log_assert (const char *expr, const char *file,
                    int line, const char *func)
 {
 #ifdef GPGRT_HAVE_MACRO_FUNCTION
-  _gpgrt_log (GPGRT_LOG_BUG, "Assertion \"%s\" in %s failed (%s:%d)\n",
+  _gpgrt_log (GPGRT_LOGLVL_BUG, "Assertion \"%s\" in %s failed (%s:%d)\n",
               expr, func, file, line);
 #else /*!GPGRT_HAVE_MACRO_FUNCTION*/
-  _gpgrt_log (GPGRT_LOG_BUG, "Assertion \"%s\" failed (%s:%d)\n",
+  _gpgrt_log (GPGRT_LOGLVL_BUG, "Assertion \"%s\" failed (%s:%d)\n",
            expr, file, line);
 #endif /*!GPGRT_HAVE_MACRO_FUNCTION*/
-  abort (); /* Never called; just to make the compiler happy.  */
+  _gpgrt_abort (); /* Never called; just to make the compiler happy.  */
 }

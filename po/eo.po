@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error 1.7\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"PO-Revision-Date: 2013-02-23 20:22+0100\n"
+"PO-Revision-Date: 2018-03-21 19:01+0100\n"
 "Last-Translator: Felipe Castro <fefcas@gmail.com>\n"
 "Language-Team: Esperanto <translation-team-eo@lists.sourceforge.net>\n"
 "Language: eo\n"
@@ -1048,6 +1048,34 @@ msgstr ""
 msgid "Wrong name"
 msgstr "Nekonata nomo"
 
+#, fuzzy
+#| msgid "Not locked"
+msgid "Not authenticated"
+msgstr "Ne ŝlosita"
+
+#, fuzzy
+#| msgid "Unsupported protection"
+msgid "Bad authentication"
+msgstr "Nesubtenata protekto"
+
+#, fuzzy
+#| msgid "No agent running"
+msgid "No Keybox daemon running"
+msgstr "Neniu agento rulas"
+
+#, fuzzy
+#| msgid "SmartCard daemon error"
+msgid "Keybox daemon error"
+msgstr "Eraro de la demono SmartCard"
+
+msgid "Service is not running"
+msgstr ""
+
+#, fuzzy
+#| msgid "Keyserver error"
+msgid "Service error"
+msgstr "Ŝlosilservila eraro"
+
 msgid "System bug detected"
 msgstr ""
 
@@ -1488,6 +1516,105 @@ msgstr "Uzant-difinita erarkodo 15"
 msgid "User defined error code 16"
 msgstr "Uzant-difinita erarkodo 16"
 
+#, fuzzy
+#| msgid "Success"
+msgid "SQL success"
+msgstr "Sukceso"
+
+#, fuzzy
+#| msgid "Syntax error"
+msgid "SQL error"
+msgstr "Sintaks-eraro"
+
+msgid "Internal logic error in SQL library"
+msgstr ""
+
+msgid "Access permission denied (SQL)"
+msgstr ""
+
+msgid "SQL abort was requested"
+msgstr ""
+
+msgid "SQL database file is locked"
+msgstr ""
+
+msgid "An SQL table in the database is locked"
+msgstr ""
+
+msgid "SQL library ran out of core"
+msgstr ""
+
+msgid "Attempt to write a readonly SQL database"
+msgstr ""
+
+msgid "SQL operation terminated by interrupt"
+msgstr ""
+
+msgid "I/O error during SQL operation"
+msgstr ""
+
+msgid "SQL database disk image is malformed"
+msgstr ""
+
+msgid "Unknown opcode in SQL file control"
+msgstr ""
+
+msgid "Insertion failed because SQL database is full"
+msgstr ""
+
+msgid "Unable to open the SQL database file"
+msgstr ""
+
+#, fuzzy
+#| msgid "Protocol violation"
+msgid "SQL database lock protocol error"
+msgstr "Perforto de protokolo"
+
+msgid "(internal SQL code: empty)"
+msgstr ""
+
+msgid "SQL database schema changed"
+msgstr ""
+
+msgid "String or blob exceeds size limit (SQL)"
+msgstr ""
+
+msgid "SQL abort due to constraint violation"
+msgstr ""
+
+msgid "Data type mismatch (SQL)"
+msgstr ""
+
+msgid "SQL library used incorrectly"
+msgstr ""
+
+msgid "SQL library uses unsupported OS features"
+msgstr ""
+
+msgid "Authorization denied (SQL)"
+msgstr ""
+
+msgid "(unused SQL code: format)"
+msgstr ""
+
+msgid "SQL bind parameter out of range"
+msgstr ""
+
+msgid "File opened that is not an SQL database file"
+msgstr ""
+
+msgid "Notifications from SQL logger"
+msgstr ""
+
+msgid "Warnings from SQL logger"
+msgstr ""
+
+msgid "SQL has another row ready"
+msgstr ""
+
+msgid "SQL has finished executing"
+msgstr ""
+
 msgid "System error w/o errno"
 msgstr "Sistem-eraro sen errno"
 
@@ -1500,13 +1627,119 @@ msgstr "Fino de dosiero"
 msgid "Unknown error code"
 msgstr "Nekonata erar-kodo"
 
-#, c-format
-msgid "Usage: %s GPG-ERROR [...]\n"
-msgstr "Uzmaniero: %s GPG-ERARO [...]\n"
+#, fuzzy
+msgid "argument not expected"
+msgstr "skribas sekretan ŝlosilon al '%s'\n"
+
+#, fuzzy
+msgid "read error"
+msgstr "legeraro ĉe dosiero"
+
+#, fuzzy
+msgid "keyword too long"
+msgstr "pasfrazo estas tro longa\n"
+
+#, fuzzy
+msgid "missing argument"
+msgstr "nevalida argumento"
+
+#, fuzzy
+#| msgid "invalid armor"
+msgid "invalid argument"
+msgstr "nevalida kiraso"
+
+#, fuzzy
+msgid "invalid command"
+msgstr "malkongruaj komandoj\n"
+
+#, fuzzy
+msgid "invalid alias definition"
+msgstr "nevalida kiraso"
+
+#, fuzzy
+#| msgid "Configuration error"
+msgid "permission error"
+msgstr "Agord-eraro"
+
+#, fuzzy
+msgid "out of core"
+msgstr "ne traktita"
+
+#, fuzzy
+msgid "invalid meta command"
+msgstr "malkongruaj komandoj\n"
+
+#, fuzzy
+#| msgid "Unknown command"
+msgid "unknown meta command"
+msgstr "Nekonata komando"
+
+#, fuzzy
+#| msgid "Unexpected IPC command"
+msgid "unexpected meta command"
+msgstr "Neatendita komando IPC"
+
+#, fuzzy
+msgid "invalid option"
+msgstr "nevalida kiraso"
 
 #, c-format
-msgid "%s: warning: could not recognize %s\n"
-msgstr "%s: averto: ne eblis rekoni %s\n"
+msgid "missing argument for option \"%.50s\"\n"
+msgstr ""
+
+#, fuzzy, c-format
+msgid "invalid argument for option \"%.50s\"\n"
+msgstr "nevalida kiraso"
+
+#, c-format
+msgid "option \"%.50s\" does not expect an argument\n"
+msgstr ""
+
+#, fuzzy, c-format
+msgid "invalid command \"%.50s\"\n"
+msgstr "Nevalida komando (provu per \"helpo\")\n"
+
+#, c-format
+msgid "option \"%.50s\" is ambiguous\n"
+msgstr ""
+
+#, c-format
+msgid "command \"%.50s\" is ambiguous\n"
+msgstr ""
+
+#, fuzzy, c-format
+msgid "invalid option \"%.50s\"\n"
+msgstr "nevalida kiraso"
+
+#, c-format
+msgid "Note: no default option file '%s'\n"
+msgstr ""
+
+#, c-format
+msgid "reading options from '%s'\n"
+msgstr ""
+
+#, c-format
+msgid "option file '%s': %s\n"
+msgstr ""
+
+#, c-format
+msgid "Note: ignoring option \"--%s\" due to global config\n"
+msgstr ""
+
+msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
+msgstr ""
+
+#, c-format
+msgid "warning: could not recognize %s\n"
+msgstr "averto: ne eblis rekoni %s\n"
+
+#, fuzzy
+#~ msgid "out of core\n"
+#~ msgstr "ne traktita"
+
+#~ msgid "Usage: %s GPG-ERROR [...]\n"
+#~ msgstr "Uzmaniero: %s GPG-ERARO [...]\n"
 
 #, fuzzy
 #~| msgid "Resources exhausted"
