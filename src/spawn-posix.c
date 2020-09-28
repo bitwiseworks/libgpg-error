@@ -56,6 +56,10 @@
 
 #include "gpgrt-int.h"
 
+#if defined(HAVE_OS2_SYSTEM)
+# include <sys/socket.h>
+# define pipe(A) socketpair(AF_UNIX, SOCK_STREAM, 0, A)
+#endif
 
 static void
 out_of_core (int line)
